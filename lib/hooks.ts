@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
 
 import {
   loadEntries,
@@ -10,69 +10,120 @@ import {
 } from './storage';
 import { DEFAULT_SETTINGS, type Settings, type WeightEntry } from './types';
 
-export function useEntries() {
-  const [entries, setEntries] = useState<WeightEntry[]>([]);
-  const [loaded, setLoaded] = useState(false);
+type Listener = () => void;
 
-  useEffect(() => {
-    let cancelled = false;
-    loadEntries().then((rows) => {
-      if (!cancelled) {
-        setEntries(rows);
-        setLoaded(true);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+let entriesCache: WeightEntry[] = [];
+let entriesLoaded = false;
+let entriesLoadStarted = false;
+const entriesListeners = new Set<Listener>();
+
+function notifyEntries() {
+  entriesListeners.forEach((l) => l());
+}
+
+function subscribeEntries(l: Listener): () => void {
+  entriesListeners.add(l);
+  if (!entriesLoadStarted) {
+    entriesLoadStarted = true;
+    loadEntries()
+      .then((rows) => {
+        entriesCache = rows;
+        entriesLoaded = true;
+        notifyEntries();
+      })
+      .catch(() => {
+        entriesLoaded = true;
+        notifyEntries();
+      });
+  }
+  return () => {
+    entriesListeners.delete(l);
+  };
+}
+
+export function useEntries() {
+  const entries = useSyncExternalStore(
+    subscribeEntries,
+    () => entriesCache,
+    () => entriesCache,
+  );
 
   const upsert = useCallback(async (entry: WeightEntry) => {
     const next = await persistUpsert(entry);
-    setEntries(next);
+    entriesCache = next;
+    notifyEntries();
     return next;
   }, []);
 
   const remove = useCallback(async (date: string) => {
     const next = await persistDelete(date);
-    setEntries(next);
+    entriesCache = next;
+    notifyEntries();
     return next;
   }, []);
 
   const replaceAll = useCallback(async (next: WeightEntry[]) => {
     await persistEntries(next);
-    const fresh = await loadEntries();
-    setEntries(fresh);
-    return fresh;
+    entriesCache = await loadEntries();
+    notifyEntries();
+    return entriesCache;
   }, []);
 
-  return { entries, loaded, upsert, remove, replaceAll };
+  return { entries, loaded: entriesLoaded, upsert, remove, replaceAll };
+}
+
+let settingsCache: Settings = { ...DEFAULT_SETTINGS };
+let settingsLoaded = false;
+let settingsLoadStarted = false;
+const settingsListeners = new Set<Listener>();
+
+function notifySettings() {
+  settingsListeners.forEach((l) => l());
+}
+
+function subscribeSettings(l: Listener): () => void {
+  settingsListeners.add(l);
+  if (!settingsLoadStarted) {
+    settingsLoadStarted = true;
+    loadSettings()
+      .then((s) => {
+        settingsCache = s;
+        settingsLoaded = true;
+        notifySettings();
+      })
+      .catch(() => {
+        settingsLoaded = true;
+        notifySettings();
+      });
+  }
+  return () => {
+    settingsListeners.delete(l);
+  };
 }
 
 export function useSettings() {
-  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    loadSettings().then((s) => {
-      if (!cancelled) {
-        setSettings(s);
-        setLoaded(true);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const settings = useSyncExternalStore(
+    subscribeSettings,
+    () => settingsCache,
+    () => settingsCache,
+  );
 
   const update = useCallback(async (patch: Partial<Settings>) => {
-    setSettings((prev) => {
-      const next = { ...prev, ...patch };
-      persistSettings(next);
-      return next;
-    });
+    settingsCache = { ...settingsCache, ...patch };
+    notifySettings();
+    await persistSettings(settingsCache);
   }, []);
 
-  return { settings, loaded, update };
+  return { settings, loaded: settingsLoaded, update };
+}
+
+export function __resetHooksForTest() {
+  entriesCache = [];
+  entriesLoaded = false;
+  entriesLoadStarted = false;
+  entriesListeners.clear();
+  settingsCache = { ...DEFAULT_SETTINGS };
+  settingsLoaded = false;
+  settingsLoadStarted = false;
+  settingsListeners.clear();
 }
