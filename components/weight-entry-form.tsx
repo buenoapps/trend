@@ -1,26 +1,32 @@
 import * as Haptics from 'expo-haptics';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { todayKey } from '@/lib/dates';
 import { parseWeightInput, reasonToMessage } from '@/lib/units';
-import type { Unit, WeightEntry } from '@/lib/types';
+import type { DateKey, Unit, WeightEntry } from '@/lib/types';
 
 type Props = {
+  date: DateKey;
   unit: Unit;
   initialKg?: number;
   onSave: (entry: WeightEntry) => void | Promise<void>;
 };
 
-export function WeightEntryForm({ unit, initialKg, onSave }: Props) {
+export function WeightEntryForm({ date, unit, initialKg, onSave }: Props) {
   const scheme = useColorScheme() ?? 'light';
   const palette = Colors[scheme];
   const [text, setText] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+
+  useEffect(() => {
+    setText('');
+    setError(null);
+    setSavedAt(null);
+  }, [date]);
 
   const handleSave = async () => {
     const result = parseWeightInput(text, unit);
@@ -29,7 +35,7 @@ export function WeightEntryForm({ unit, initialKg, onSave }: Props) {
       return;
     }
     setError(null);
-    await onSave({ date: todayKey(), kg: result.kg });
+    await onSave({ date, kg: result.kg });
     setText('');
     setSavedAt(Date.now());
     if (Platform.OS !== 'web') {

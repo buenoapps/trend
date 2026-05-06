@@ -16,6 +16,12 @@ export function daysAgoKey(n: number): DateKey {
   return dateToKey(d);
 }
 
+export function addDays(key: DateKey, n: number): DateKey {
+  const d = keyToDate(key);
+  d.setDate(d.getDate() + n);
+  return dateToKey(d);
+}
+
 export function compareKey(a: DateKey, b: DateKey): number {
   return a < b ? -1 : a > b ? 1 : 0;
 }

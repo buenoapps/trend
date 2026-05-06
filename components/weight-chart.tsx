@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { LineChart } from 'react-native-gifted-charts';
 
-import { ThemedText } from '@/components/themed-text';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { formatShort } from '@/lib/dates';
@@ -36,20 +35,6 @@ export function WeightChart({ entries, unit, width }: Props) {
   const yMax = Math.ceil(max + span * 0.2);
 
   if (entries.length === 0) return null;
-
-  if (entries.length === 1) {
-    return (
-      <View style={[styles.singleCard, { backgroundColor: palette.cardSoft, borderColor: palette.border }]}>
-        <ThemedText style={[styles.singleLabel, { color: palette.muted }]}>
-          {formatShort(entries[0].date)}
-        </ThemedText>
-        <ThemedText type="title">{formatWeight(entries[0].kg, unit)}</ThemedText>
-        <ThemedText style={[styles.singleHint, { color: palette.muted }]}>
-          Add another entry to see your trend curve.
-        </ThemedText>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.wrap}>
@@ -91,13 +76,4 @@ export function WeightChart({ entries, unit, width }: Props) {
 
 const styles = StyleSheet.create({
   wrap: { paddingVertical: 8 },
-  singleCard: {
-    padding: 24,
-    borderRadius: 14,
-    borderWidth: 1,
-    alignItems: 'center',
-    gap: 4,
-  },
-  singleLabel: { fontSize: 13 },
-  singleHint: { fontSize: 13, marginTop: 8, textAlign: 'center' },
 });

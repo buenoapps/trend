@@ -1,4 +1,4 @@
-import { compareKey, dateToKey, daysAgoKey, formatShort, isValidKey, todayKey } from '../dates';
+import { addDays, compareKey, dateToKey, daysAgoKey, formatShort, isValidKey, todayKey } from '../dates';
 
 describe('dates', () => {
   beforeEach(() => {
@@ -38,5 +38,13 @@ describe('dates', () => {
   it('formatShort renders Mon Day', () => {
     expect(formatShort('2026-01-03')).toBe('Jan 3');
     expect(dateToKey(new Date(2026, 11, 25))).toBe('2026-12-25');
+  });
+
+  it('addDays moves forward and back across month boundaries', () => {
+    expect(addDays('2026-05-05', 1)).toBe('2026-05-06');
+    expect(addDays('2026-05-05', -1)).toBe('2026-05-04');
+    expect(addDays('2026-01-31', 1)).toBe('2026-02-01');
+    expect(addDays('2026-03-01', -1)).toBe('2026-02-28');
+    expect(addDays('2024-03-01', -1)).toBe('2024-02-29');
   });
 });
