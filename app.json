@@ -9,7 +9,10 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSUserNotificationsUsageDescription": "Trend uses local notifications to remind you to log your weight at your chosen time."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -33,10 +36,18 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#FBF7EE",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#10140F"
           }
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#6FA46A",
+          "defaultChannel": "trend-reminder"
         }
       ]
     ],
