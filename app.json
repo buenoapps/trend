@@ -10,8 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.buenoapps.trend",
       "infoPlist": {
-        "NSUserNotificationsUsageDescription": "Trend uses local notifications to remind you to log your weight at your chosen time."
+        "NSUserNotificationsUsageDescription": "Trend uses local notifications to remind you to log your weight at your chosen time.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -22,7 +24,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.buenoapps.trend"
     },
     "web": {
       "output": "static",
@@ -54,6 +57,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "owner": "buenoapps",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "8a337fc9-816d-40ff-a867-a4a76a7cd268"
+      }
     }
   }
 }
