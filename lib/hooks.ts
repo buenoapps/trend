@@ -1,5 +1,6 @@
 import { useCallback, useSyncExternalStore } from 'react';
 
+import { todayKey } from './dates';
 import {
   loadEntries,
   loadSettings,
@@ -8,7 +9,7 @@ import {
   deleteEntry as persistDelete,
   saveEntries as persistEntries,
 } from './storage';
-import { DEFAULT_SETTINGS, type Settings, type WeightEntry } from './types';
+import { DEFAULT_SETTINGS, type DateKey, type Settings, type WeightEntry } from './types';
 
 type Listener = () => void;
 
@@ -117,6 +118,35 @@ export function useSettings() {
   return { settings, loaded: settingsLoaded, update };
 }
 
+let activeDateCache: DateKey = todayKey();
+const activeDateListeners = new Set<Listener>();
+
+function notifyActiveDate() {
+  activeDateListeners.forEach((l) => l());
+}
+
+function subscribeActiveDate(l: Listener): () => void {
+  activeDateListeners.add(l);
+  return () => {
+    activeDateListeners.delete(l);
+  };
+}
+
+export function setActiveDate(date: DateKey) {
+  if (activeDateCache === date) return;
+  activeDateCache = date;
+  notifyActiveDate();
+}
+
+export function useActiveDate(): [DateKey, (d: DateKey) => void] {
+  const date = useSyncExternalStore(
+    subscribeActiveDate,
+    () => activeDateCache,
+    () => activeDateCache,
+  );
+  return [date, setActiveDate];
+}
+
 export function __resetHooksForTest() {
   entriesCache = [];
   entriesLoaded = false;
@@ -126,4 +156,6 @@ export function __resetHooksForTest() {
   settingsLoaded = false;
   settingsLoadStarted = false;
   settingsListeners.clear();
+  activeDateCache = todayKey();
+  activeDateListeners.clear();
 }
