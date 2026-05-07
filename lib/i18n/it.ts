@@ -1,0 +1,91 @@
+import type { Translations } from './en';
+
+const it = {
+  tabs: { today: 'Oggi', trend: 'Andamento', settings: 'Impostazioni' },
+  today: {
+    todayLabel: 'Oggi',
+    yesterdayLabel: 'Ieri',
+    previousDay: 'Giorno precedente',
+    nextDay: 'Giorno successivo',
+    deltaUp: '▲ {{weight}} dal {{date}}',
+    deltaDown: '▼ {{weight}} dal {{date}}',
+    deltaSteady: 'Invariato rispetto alla voce precedente.',
+  },
+  history: {
+    title: 'Il tuo andamento',
+    entriesInWindow: {
+      one: '{{count}} voce in questo intervallo',
+      other: '{{count}} voci in questo intervallo',
+    },
+    range7: '7 giorni',
+    range30: '30 giorni',
+    rangeAll: 'Tutto',
+    empty: 'Ancora nessuna voce in questo intervallo.',
+    statChange: 'Variazione',
+    statLow: 'Min',
+    statHigh: 'Max',
+  },
+  settings: {
+    title: 'Impostazioni',
+    units: 'Unità',
+    unitsNote:
+      'Memorizzato internamente in chilogrammi; cambia quando vuoi senza perdere dati.',
+    reminder: 'Promemoria giornaliero',
+    reminderSwitch: 'Ricordami di registrare il peso',
+    time: 'Ora',
+    reminderWebNote:
+      'I promemoria non sono ancora disponibili sul web — apri Trend su iOS o Android per attivarli.',
+    language: 'Lingua',
+    languageAuto: 'Automatica (dispositivo)',
+    yourData: 'I tuoi dati',
+    exportJson: 'Esporta come JSON',
+    exportJsonCount: { one: '{{count}} voce', other: '{{count}} voci' },
+    exportCsv: 'Esporta come CSV',
+    exportCsvSubtitle: 'Compatibile con i fogli di calcolo',
+    importData: 'Importa dati',
+    importSubtitle: 'JSON o CSV — le voci dello stesso giorno vengono sostituite',
+    footer: 'Trend tiene tutto su questo dispositivo. Il tuo germoglio crede in te.',
+  },
+  alerts: {
+    permissionRequired: 'Autorizzazione richiesta',
+    permissionBody:
+      'Attiva le notifiche nelle impostazioni del dispositivo per usare i promemoria.',
+    nothingToExport: 'Niente da esportare',
+    nothingToExportBody: 'Registra prima un peso e poi torna qui.',
+    exportFailed: 'Esportazione non riuscita',
+    importFailed: 'Importazione non riuscita',
+    importTitle: 'Importa dati',
+    importConfirm:
+      'Importare {{count}} voci da {{filename}}? Le voci esistenti nella stessa data verranno sostituite.',
+    importComplete: 'Importazione completata',
+    importCompleteBody: { one: '{{count}} voce unita.', other: '{{count}} voci unite.' },
+    cancel: 'Annulla',
+    import: 'Importa',
+    unknownError: 'Errore sconosciuto',
+  },
+  form: {
+    placeholderToday: 'Oggi: tocca per aggiornare',
+    placeholderPast: 'Tocca per aggiornare',
+    placeholderEmpty: 'Il tuo peso',
+    save: 'Salva',
+    saved: 'Salvato — ottimo lavoro.',
+    a11yInput: 'Inserimento peso',
+    a11ySave: 'Salva il peso di oggi',
+    errorEmpty: 'Inserisci un numero',
+    errorNotANumber: 'Non sembra un numero',
+    errorNegative: 'Il peso deve essere positivo',
+    errorTooLarge: 'Sembra troppo alto',
+  },
+  emptyState: {
+    title: 'Pianta il tuo primo dato',
+    subtitle: 'Registra un peso nella scheda Oggi e il tuo andamento partirà da qui.',
+  },
+  notification: {
+    channelName: 'Promemoria giornaliero',
+    title: 'È ora di registrare il peso',
+    body: 'Un tocco veloce mantiene il tuo andamento onesto.',
+  },
+  timePicker: { changeLabel: 'Modifica {{label}}' },
+} satisfies Translations;
+
+export default it;

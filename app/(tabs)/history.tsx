@@ -9,19 +9,21 @@ import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { compareKey, daysAgoKey } from '@/lib/dates';
 import { useEntries, useSettings } from '@/lib/hooks';
+import { useT } from '@/lib/i18n';
 import { formatWeight } from '@/lib/units';
 
 type Range = '7' | '30' | 'all';
 
-const RANGES: { key: Range; label: string; days: number | null }[] = [
-  { key: '7', label: '7 days', days: 7 },
-  { key: '30', label: '30 days', days: 30 },
-  { key: 'all', label: 'All', days: null },
+const RANGES: { key: Range; labelKey: string; days: number | null }[] = [
+  { key: '7', labelKey: 'history.range7', days: 7 },
+  { key: '30', labelKey: 'history.range30', days: 30 },
+  { key: 'all', labelKey: 'history.rangeAll', days: null },
 ];
 
 export default function HistoryScreen() {
   const scheme = useColorScheme() ?? 'light';
   const palette = Colors[scheme];
+  const t = useT();
   const { entries, loaded } = useEntries();
   const { settings } = useSettings();
   const { width } = useWindowDimensions();
@@ -55,9 +57,9 @@ export default function HistoryScreen() {
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: palette.background }]} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content}>
-        <ThemedText type="title">Your trend</ThemedText>
+        <ThemedText type="title">{t('history.title')}</ThemedText>
         <ThemedText style={[styles.subtitle, { color: palette.muted }]}>
-          {filtered.length} {filtered.length === 1 ? 'entry' : 'entries'} in this window
+          {t('history.entriesInWindow', { count: filtered.length })}
         </ThemedText>
 
         <View style={[styles.toggle, { backgroundColor: palette.cardSoft, borderColor: palette.border }]}>
@@ -78,7 +80,7 @@ export default function HistoryScreen() {
                     styles.toggleText,
                     { color: active ? '#FFFFFF' : palette.text },
                   ]}>
-                  {r.label}
+                  {t(r.labelKey)}
                 </ThemedText>
               </Pressable>
             );
@@ -88,7 +90,7 @@ export default function HistoryScreen() {
         <View style={styles.chartWrap}>
           {filtered.length === 0 ? (
             <ThemedText style={{ color: palette.muted, textAlign: 'center', padding: 24 }}>
-              No entries in this window yet.
+              {t('history.empty')}
             </ThemedText>
           ) : (
             <WeightChart entries={filtered} unit={settings.unit} width={width - 48} />
@@ -98,12 +100,12 @@ export default function HistoryScreen() {
         {stats ? (
           <View style={styles.statsRow}>
             <StatCard
-              label="Change"
+              label={t('history.statChange')}
               value={`${stats.diff > 0 ? '+' : stats.diff < 0 ? '-' : ''}${formatWeight(Math.abs(stats.diff), settings.unit)}`}
               palette={palette}
             />
-            <StatCard label="Low" value={formatWeight(stats.min.kg, settings.unit)} palette={palette} />
-            <StatCard label="High" value={formatWeight(stats.max.kg, settings.unit)} palette={palette} />
+            <StatCard label={t('history.statLow')} value={formatWeight(stats.min.kg, settings.unit)} palette={palette} />
+            <StatCard label={t('history.statHigh')} value={formatWeight(stats.max.kg, settings.unit)} palette={palette} />
           </View>
         ) : null}
       </ScrollView>

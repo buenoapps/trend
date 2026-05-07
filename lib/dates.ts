@@ -35,14 +35,14 @@ export function keyToDate(k: DateKey): Date {
   return new Date(y, m - 1, d);
 }
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-export function formatShort(k: DateKey): string {
-  const d = keyToDate(k);
-  return `${MONTHS[d.getMonth()]} ${d.getDate()}`;
+export function formatShort(k: DateKey, locale: string): string {
+  return new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric' }).format(keyToDate(k));
 }
 
-export function formatLong(k: DateKey): string {
-  const d = keyToDate(k);
-  return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+export function formatLong(k: DateKey, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }).format(keyToDate(k));
 }

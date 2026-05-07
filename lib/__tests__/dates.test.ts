@@ -1,4 +1,4 @@
-import { addDays, compareKey, dateToKey, daysAgoKey, formatShort, isValidKey, todayKey } from '../dates';
+import { addDays, compareKey, dateToKey, daysAgoKey, formatLong, formatShort, isValidKey, todayKey } from '../dates';
 
 describe('dates', () => {
   beforeEach(() => {
@@ -35,9 +35,19 @@ describe('dates', () => {
     expect(isValidKey('not a date')).toBe(false);
   });
 
-  it('formatShort renders Mon Day', () => {
-    expect(formatShort('2026-01-03')).toBe('Jan 3');
+  it('formatShort renders the localized month + day', () => {
+    expect(formatShort('2026-01-03', 'en-US')).toBe('Jan 3');
     expect(dateToKey(new Date(2026, 11, 25))).toBe('2026-12-25');
+  });
+
+  it('formatLong respects the requested locale', () => {
+    const en = formatLong('2026-05-07', 'en-US');
+    expect(en).toContain('May');
+    expect(en).toContain('7');
+    expect(en).toContain('2026');
+    const de = formatLong('2026-05-07', 'de-DE');
+    expect(de).toContain('Mai');
+    expect(de).toContain('2026');
   });
 
   it('addDays moves forward and back across month boundaries', () => {

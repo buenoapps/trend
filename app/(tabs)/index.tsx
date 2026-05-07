@@ -8,19 +8,26 @@ import { WeightEntryForm } from '@/components/weight-entry-form';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { addDays, compareKey, formatLong, todayKey } from '@/lib/dates';
+import { useLocale, useT } from '@/lib/i18n';
 import { useActiveDate, useEntries, useSettings } from '@/lib/hooks';
 import { formatWeight } from '@/lib/units';
 
 export default function TodayScreen() {
   const scheme = useColorScheme() ?? 'light';
   const palette = Colors[scheme];
+  const t = useT();
+  const locale = useLocale();
   const { entries, upsert } = useEntries();
   const { settings } = useSettings();
 
   const [activeDate, setActiveDate] = useActiveDate();
   const isToday = activeDate === todayKey();
   const isYesterday = activeDate === addDays(todayKey(), -1);
-  const dateLabel = isToday ? 'Today' : isYesterday ? 'Yesterday' : formatLong(activeDate);
+  const dateLabel = isToday
+    ? t('today.todayLabel')
+    : isYesterday
+      ? t('today.yesterdayLabel')
+      : formatLong(activeDate, locale);
 
   const activeEntry = entries.find((e) => e.date === activeDate);
   const previousEntry = [...entries].reverse().find((e) => compareKey(e.date, activeDate) < 0);
@@ -29,10 +36,12 @@ export default function TodayScreen() {
   if (activeEntry && previousEntry) {
     const diff = activeEntry.kg - previousEntry.kg;
     if (Math.abs(diff) >= 0.05) {
-      const arrow = diff > 0 ? '▲' : '▼';
-      delta = `${arrow} ${formatWeight(Math.abs(diff), settings.unit)} since ${previousEntry.date}`;
+      delta = t(diff > 0 ? 'today.deltaUp' : 'today.deltaDown', {
+        weight: formatWeight(Math.abs(diff), settings.unit),
+        date: formatLong(previousEntry.date, locale),
+      });
     } else {
-      delta = 'Steady from the previous entry.';
+      delta = t('today.deltaSteady');
     }
   }
 
@@ -60,7 +69,7 @@ export default function TodayScreen() {
             <Pressable
               onPress={goBack}
               accessibilityRole="button"
-              accessibilityLabel="Previous day"
+              accessibilityLabel={t('today.previousDay')}
               hitSlop={12}
               style={({ pressed }) => [
                 styles.dateButton,
@@ -75,7 +84,7 @@ export default function TodayScreen() {
               onPress={goForward}
               disabled={isToday}
               accessibilityRole="button"
-              accessibilityLabel="Next day"
+              accessibilityLabel={t('today.nextDay')}
               accessibilityState={{ disabled: isToday }}
               hitSlop={12}
               style={({ pressed }) => [

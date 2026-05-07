@@ -6,8 +6,9 @@ import { ThemedText } from '@/components/themed-text';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { todayKey } from '@/lib/dates';
-import { formatWeight, parseWeightInput, reasonToMessage } from '@/lib/units';
+import { useT } from '@/lib/i18n';
 import type { DateKey, Unit, WeightEntry } from '@/lib/types';
+import { formatWeight, parseWeightInput, reasonToKey } from '@/lib/units';
 
 type Props = {
   date: DateKey;
@@ -19,13 +20,18 @@ type Props = {
 export function WeightEntryForm({ date, unit, initialKg, onSave }: Props) {
   const scheme = useColorScheme() ?? 'light';
   const palette = Colors[scheme];
+  const t = useT();
   const [text, setText] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<number | null>(null);
 
   const isToday = date === todayKey();
   const placeholder =
-    initialKg != null ? (isToday ? 'Today: tap to update' : 'Tap to update') : 'Your weight';
+    initialKg != null
+      ? isToday
+        ? t('form.placeholderToday')
+        : t('form.placeholderPast')
+      : t('form.placeholderEmpty');
 
   useEffect(() => {
     setText(initialKg != null ? formatWeight(initialKg, unit, { withUnit: false }) : '');
@@ -36,7 +42,7 @@ export function WeightEntryForm({ date, unit, initialKg, onSave }: Props) {
   const handleSave = async () => {
     const result = parseWeightInput(text, unit);
     if (!result.ok) {
-      setError(reasonToMessage(result.reason));
+      setError(t(reasonToKey(result.reason)));
       return;
     }
     setError(null);
@@ -58,8 +64,8 @@ export function WeightEntryForm({ date, unit, initialKg, onSave }: Props) {
         <TextInput
           style={[styles.input, { color: palette.text }]}
           value={text}
-          onChangeText={(t) => {
-            setText(t);
+          onChangeText={(next) => {
+            setText(next);
             setError(null);
             setSavedAt(null);
           }}
@@ -69,26 +75,26 @@ export function WeightEntryForm({ date, unit, initialKg, onSave }: Props) {
           inputMode="decimal"
           returnKeyType="done"
           onSubmitEditing={handleSave}
-          accessibilityLabel="Weight input"
+          accessibilityLabel={t('form.a11yInput')}
         />
         <ThemedText style={[styles.unit, { color: palette.muted }]}>{unit}</ThemedText>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Save today's weight"
+          accessibilityLabel={t('form.a11ySave')}
           onPress={handleSave}
           style={({ pressed }) => [
             styles.button,
             { backgroundColor: palette.leaf, opacity: pressed ? 0.85 : 1 },
           ]}>
           <ThemedText style={styles.buttonText} lightColor="#FFFFFF" darkColor="#10140F">
-            Save
+            {t('form.save')}
           </ThemedText>
         </Pressable>
       </View>
       {error ? (
         <ThemedText style={[styles.hint, { color: palette.danger }]}>{error}</ThemedText>
       ) : savedAt ? (
-        <ThemedText style={[styles.hint, { color: palette.muted }]}>Saved — nice work.</ThemedText>
+        <ThemedText style={[styles.hint, { color: palette.muted }]}>{t('form.saved')}</ThemedText>
       ) : null}
     </View>
   );
