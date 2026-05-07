@@ -1,6 +1,8 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
+import { t } from './i18n';
+
 export function isSupported(): boolean {
   return Platform.OS !== 'web';
 }
@@ -25,15 +27,15 @@ export async function scheduleDailyReminder(hhmm: string): Promise<string | unde
   if (!isSupported()) return undefined;
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('trend-reminder', {
-      name: 'Daily reminder',
+      name: t('notification.channelName'),
       importance: Notifications.AndroidImportance.DEFAULT,
     });
   }
   const { hour, minute } = parseHHmm(hhmm);
   const id = await Notifications.scheduleNotificationAsync({
     content: {
-      title: 'Time to log your weight',
-      body: 'A quick tap keeps your trend honest.',
+      title: t('notification.title'),
+      body: t('notification.body'),
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DAILY,

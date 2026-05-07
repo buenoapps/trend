@@ -7,6 +7,7 @@ import { TimePickerRow } from '@/components/time-picker-row';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useEntries, useSettings } from '@/lib/hooks';
+import { SUPPORTED_LOCALES, type SupportedLocale, useT } from '@/lib/i18n';
 import {
   cancelReminder,
   isSupported as notificationsSupported,
@@ -15,16 +16,29 @@ import {
 } from '@/lib/notifications';
 import { mergeEntries } from '@/lib/serialize';
 import { decodePayload, exportEntries, importFromPicker } from '@/lib/share';
-import type { Unit } from '@/lib/types';
+import type { LocaleChoice, Unit } from '@/lib/types';
 
-function confirm(message: string): Promise<boolean> {
+const LOCALE_LABELS: Record<SupportedLocale, string> = {
+  en: 'English',
+  de: 'Deutsch',
+  es: 'Español',
+  fr: 'Français',
+  it: 'Italiano',
+};
+
+function confirm(
+  title: string,
+  message: string,
+  cancelLabel: string,
+  confirmLabel: string,
+): Promise<boolean> {
   if (Platform.OS === 'web') {
     return Promise.resolve(window.confirm(message));
   }
   return new Promise((resolve) => {
-    Alert.alert('Import data', message, [
-      { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
-      { text: 'Import', onPress: () => resolve(true) },
+    Alert.alert(title, message, [
+      { text: cancelLabel, style: 'cancel', onPress: () => resolve(false) },
+      { text: confirmLabel, onPress: () => resolve(true) },
     ]);
   });
 }
@@ -40,6 +54,7 @@ function notify(title: string, message?: string) {
 export default function SettingsScreen() {
   const scheme = useColorScheme() ?? 'light';
   const palette = Colors[scheme];
+  const t = useT();
   const { settings, update } = useSettings();
   const { entries, replaceAll } = useEntries();
   const [busy, setBusy] = useState<string | null>(null);
@@ -48,12 +63,14 @@ export default function SettingsScreen() {
 
   const setUnit = (unit: Unit) => update({ unit });
 
+  const setLocaleChoice = (localeChoice: LocaleChoice) => update({ localeChoice });
+
   const setReminderEnabled = async (enabled: boolean) => {
     if (!supportsReminders) return;
     if (enabled) {
       const granted = await requestPermission();
       if (!granted) {
-        notify('Permission required', 'Enable notifications in your device settings to use reminders.');
+        notify(t('alerts.permissionRequired'), t('alerts.permissionBody'));
         return;
       }
       await cancelReminder(settings.reminderNotificationId);
@@ -76,14 +93,14 @@ export default function SettingsScreen() {
 
   const handleExport = async (kind: 'json' | 'csv') => {
     if (entries.length === 0) {
-      notify('Nothing to export', 'Log a weight first, then come back.');
+      notify(t('alerts.nothingToExport'), t('alerts.nothingToExportBody'));
       return;
     }
     try {
       setBusy(`export-${kind}`);
       await exportEntries(entries, kind);
     } catch (e) {
-      notify('Export failed', e instanceof Error ? e.message : 'Unknown error');
+      notify(t('alerts.exportFailed'), e instanceof Error ? e.message : t('alerts.unknownError'));
     } finally {
       setBusy(null);
     }
@@ -96,18 +113,24 @@ export default function SettingsScreen() {
       if (!payload) return;
       const decoded = decodePayload(payload);
       if (!decoded.ok) {
-        notify('Import failed', decoded.reason);
+        notify(t('alerts.importFailed'), decoded.reason);
         return;
       }
       const proceed = await confirm(
-        `Import ${decoded.value.length} entries from ${payload.filename}? Existing entries on the same date will be replaced.`
+        t('alerts.importTitle'),
+        t('alerts.importConfirm', { count: decoded.value.length, filename: payload.filename }),
+        t('alerts.cancel'),
+        t('alerts.import'),
       );
       if (!proceed) return;
       const merged = mergeEntries(entries, decoded.value);
       await replaceAll(merged);
-      notify('Import complete', `${decoded.value.length} entries merged.`);
+      notify(
+        t('alerts.importComplete'),
+        t('alerts.importCompleteBody', { count: decoded.value.length }),
+      );
     } catch (e) {
-      notify('Import failed', e instanceof Error ? e.message : 'Unknown error');
+      notify(t('alerts.importFailed'), e instanceof Error ? e.message : t('alerts.unknownError'));
     } finally {
       setBusy(null);
     }
@@ -116,9 +139,9 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: palette.background }]} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content}>
-        <ThemedText type="title">Settings</ThemedText>
+        <ThemedText type="title">{t('settings.title')}</ThemedText>
 
-        <Section title="Units" palette={palette}>
+        <Section title={t('settings.units')} palette={palette}>
           <View style={[styles.toggle, { backgroundColor: palette.cardSoft, borderColor: palette.border }]}>
             {(['kg', 'lb'] as Unit[]).map((u) => {
               const active = settings.unit === u;
@@ -138,13 +161,13 @@ export default function SettingsScreen() {
             })}
           </View>
           <ThemedText style={[styles.note, { color: palette.muted }]}>
-            Stored internally in kilograms; switch any time without losing data.
+            {t('settings.unitsNote')}
           </ThemedText>
         </Section>
 
-        <Section title="Daily reminder" palette={palette}>
+        <Section title={t('settings.reminder')} palette={palette}>
           <View style={[styles.row, { borderColor: palette.border, backgroundColor: palette.card }]}>
-            <ThemedText style={styles.rowLabel}>Remind me to log my weight</ThemedText>
+            <ThemedText style={styles.rowLabel}>{t('settings.reminderSwitch')}</ThemedText>
             <Switch
               value={settings.reminderEnabled && supportsReminders}
               disabled={!supportsReminders}
@@ -153,19 +176,50 @@ export default function SettingsScreen() {
             />
           </View>
           <TimePickerRow
-            label="Time"
+            label={t('settings.time')}
             value={settings.reminderTime}
             disabled={!supportsReminders || !settings.reminderEnabled}
             onChange={setReminderTime}
           />
           {!supportsReminders ? (
             <ThemedText style={[styles.note, { color: palette.muted }]}>
-              Reminders aren&apos;t available on web yet — open Trend on iOS or Android to enable them.
+              {t('settings.reminderWebNote')}
             </ThemedText>
           ) : null}
         </Section>
 
-        <Section title="Your data" palette={palette}>
+        <Section title={t('settings.language')} palette={palette}>
+          <View style={styles.languageList}>
+            {(['auto', ...SUPPORTED_LOCALES] as LocaleChoice[]).map((choice) => {
+              const active = settings.localeChoice === choice;
+              const label = choice === 'auto' ? t('settings.languageAuto') : LOCALE_LABELS[choice];
+              return (
+                <Pressable
+                  key={choice}
+                  onPress={() => setLocaleChoice(choice)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: active }}
+                  style={[
+                    styles.languageItem,
+                    {
+                      borderColor: palette.border,
+                      backgroundColor: active ? palette.leaf : palette.card,
+                    },
+                  ]}>
+                  <ThemedText
+                    style={[
+                      styles.languageText,
+                      { color: active ? '#FFFFFF' : palette.text },
+                    ]}>
+                    {label}
+                  </ThemedText>
+                </Pressable>
+              );
+            })}
+          </View>
+        </Section>
+
+        <Section title={t('settings.yourData')} palette={palette}>
           <Pressable
             disabled={busy === 'export-json'}
             onPress={() => handleExport('json')}
@@ -173,9 +227,9 @@ export default function SettingsScreen() {
               styles.action,
               { borderColor: palette.border, backgroundColor: palette.card, opacity: pressed ? 0.85 : 1 },
             ]}>
-            <ThemedText style={styles.actionText}>Export as JSON</ThemedText>
+            <ThemedText style={styles.actionText}>{t('settings.exportJson')}</ThemedText>
             <ThemedText style={[styles.actionSub, { color: palette.muted }]}>
-              {entries.length} entries
+              {t('settings.exportJsonCount', { count: entries.length })}
             </ThemedText>
           </Pressable>
           <Pressable
@@ -185,9 +239,9 @@ export default function SettingsScreen() {
               styles.action,
               { borderColor: palette.border, backgroundColor: palette.card, opacity: pressed ? 0.85 : 1 },
             ]}>
-            <ThemedText style={styles.actionText}>Export as CSV</ThemedText>
+            <ThemedText style={styles.actionText}>{t('settings.exportCsv')}</ThemedText>
             <ThemedText style={[styles.actionSub, { color: palette.muted }]}>
-              Spreadsheet-friendly
+              {t('settings.exportCsvSubtitle')}
             </ThemedText>
           </Pressable>
           <Pressable
@@ -197,16 +251,16 @@ export default function SettingsScreen() {
               styles.action,
               { borderColor: palette.border, backgroundColor: palette.card, opacity: pressed ? 0.85 : 1 },
             ]}>
-            <ThemedText style={styles.actionText}>Import data</ThemedText>
+            <ThemedText style={styles.actionText}>{t('settings.importData')}</ThemedText>
             <ThemedText style={[styles.actionSub, { color: palette.muted }]}>
-              JSON or CSV — same-day entries are replaced
+              {t('settings.importSubtitle')}
             </ThemedText>
           </Pressable>
         </Section>
 
         <View style={styles.footer}>
           <ThemedText style={[styles.note, { color: palette.muted, textAlign: 'center' }]}>
-            Trend keeps everything on this device. Your sprout believes in you.
+            {t('settings.footer')}
           </ThemedText>
         </View>
       </ScrollView>
@@ -263,6 +317,14 @@ const styles = StyleSheet.create({
   },
   toggleText: { fontSize: 15, fontWeight: '600' },
   note: { fontSize: 13, marginTop: 4 },
+  languageList: { gap: 8 },
+  languageItem: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  languageText: { fontSize: 16, fontWeight: '600' },
   action: {
     paddingHorizontal: 16,
     paddingVertical: 14,

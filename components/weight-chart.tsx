@@ -5,6 +5,7 @@ import { LineChart } from 'react-native-gifted-charts';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { formatShort } from '@/lib/dates';
+import { useLocale } from '@/lib/i18n';
 import type { Unit, WeightEntry } from '@/lib/types';
 import { formatWeight, kgToLb } from '@/lib/units';
 
@@ -17,15 +18,16 @@ type Props = {
 export function WeightChart({ entries, unit, width }: Props) {
   const scheme = useColorScheme() ?? 'light';
   const palette = Colors[scheme];
+  const locale = useLocale();
 
   const data = useMemo(() => {
     const stride = Math.max(1, Math.ceil(entries.length / 6));
     return entries.map((e, i) => ({
       value: unit === 'kg' ? e.kg : kgToLb(e.kg),
-      label: i % stride === 0 ? formatShort(e.date) : undefined,
+      label: i % stride === 0 ? formatShort(e.date, locale) : undefined,
       dataPointText: i === entries.length - 1 ? formatWeight(e.kg, unit, { withUnit: false }) : undefined,
     }));
-  }, [entries, unit]);
+  }, [entries, unit, locale]);
 
   const values = data.map((d) => d.value);
   const min = Math.min(...values);

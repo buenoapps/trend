@@ -8,7 +8,8 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { todayKey } from '@/lib/dates';
-import { setActiveDate } from '@/lib/hooks';
+import { setActiveDate, useSettings } from '@/lib/hooks';
+import { resolveLocale, setLocale } from '@/lib/i18n';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -16,6 +17,11 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const { settings, loaded } = useSettings();
+
+  useEffect(() => {
+    if (loaded) setLocale(resolveLocale(settings.localeChoice));
+  }, [loaded, settings.localeChoice]);
 
   useEffect(() => {
     if (Platform.OS === 'web') return;

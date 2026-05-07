@@ -5,6 +5,7 @@ import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useT } from '@/lib/i18n';
 
 type Props = {
   label: string;
@@ -29,6 +30,7 @@ function dateToHHmm(d: Date): string {
 export function TimePickerRow({ label, value, disabled, onChange }: Props) {
   const scheme = useColorScheme() ?? 'light';
   const palette = Colors[scheme];
+  const t = useT();
   const [showPicker, setShowPicker] = useState(false);
 
   if (Platform.OS === 'web') {
@@ -77,7 +79,7 @@ export function TimePickerRow({ label, value, disabled, onChange }: Props) {
             onPress={() => !disabled && setShowPicker(true)}
             disabled={disabled}
             accessibilityRole="button"
-            accessibilityLabel={`Change ${label.toLowerCase()}`}
+            accessibilityLabel={t('timePicker.changeLabel', { label: label.toLowerCase() })}
             style={[styles.androidValue, { borderColor: palette.border, opacity: disabled ? 0.5 : 1 }]}>
             <ThemedText style={styles.valueText}>{value}</ThemedText>
           </Pressable>

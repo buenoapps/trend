@@ -56,3 +56,8 @@ jest.mock('expo-haptics', () => ({
   NotificationFeedbackType: { Success: 'success', Warning: 'warning', Error: 'error' },
   ImpactFeedbackStyle: { Light: 'light', Medium: 'medium', Heavy: 'heavy' },
 }));
+
+jest.mock('expo-localization', () => ({
+  getLocales: jest.fn().mockReturnValue([{ languageCode: 'en', languageTag: 'en-US' }]),
+  getCalendars: jest.fn().mockReturnValue([{ calendar: 'gregory' }]),
+}));

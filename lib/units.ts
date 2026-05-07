@@ -31,15 +31,15 @@ export function parseWeightInput(text: string, unit: Unit): ParseResult {
   return { ok: true, kg };
 }
 
-export function reasonToMessage(reason: Exclude<ParseResult, { ok: true }>['reason']): string {
+export function reasonToKey(reason: Exclude<ParseResult, { ok: true }>['reason']): string {
   switch (reason) {
     case 'empty':
-      return 'Enter a number';
+      return 'form.errorEmpty';
     case 'not-a-number':
-      return "That doesn't look like a number";
+      return 'form.errorNotANumber';
     case 'negative':
-      return 'Weight must be positive';
+      return 'form.errorNegative';
     case 'too-large':
-      return 'That seems too high';
+      return 'form.errorTooLarge';
   }
 }

@@ -1,0 +1,94 @@
+import type { Translations } from './en';
+
+const fr = {
+  tabs: { today: 'Aujourd’hui', trend: 'Tendance', settings: 'Réglages' },
+  today: {
+    todayLabel: 'Aujourd’hui',
+    yesterdayLabel: 'Hier',
+    previousDay: 'Jour précédent',
+    nextDay: 'Jour suivant',
+    deltaUp: '▲ {{weight}} depuis le {{date}}',
+    deltaDown: '▼ {{weight}} depuis le {{date}}',
+    deltaSteady: 'Stable depuis l’entrée précédente.',
+  },
+  history: {
+    title: 'Ta tendance',
+    entriesInWindow: {
+      one: '{{count}} entrée sur cette période',
+      other: '{{count}} entrées sur cette période',
+    },
+    range7: '7 jours',
+    range30: '30 jours',
+    rangeAll: 'Tout',
+    empty: 'Aucune entrée sur cette période pour l’instant.',
+    statChange: 'Variation',
+    statLow: 'Min',
+    statHigh: 'Max',
+  },
+  settings: {
+    title: 'Réglages',
+    units: 'Unités',
+    unitsNote:
+      'Stocké en interne en kilogrammes ; change à tout moment sans perdre tes données.',
+    reminder: 'Rappel quotidien',
+    reminderSwitch: 'Me rappeler de noter mon poids',
+    time: 'Heure',
+    reminderWebNote:
+      'Les rappels ne sont pas encore disponibles sur le web — ouvre Trend sur iOS ou Android pour les activer.',
+    language: 'Langue',
+    languageAuto: 'Automatique (appareil)',
+    yourData: 'Tes données',
+    exportJson: 'Exporter en JSON',
+    exportJsonCount: { one: '{{count}} entrée', other: '{{count}} entrées' },
+    exportCsv: 'Exporter en CSV',
+    exportCsvSubtitle: 'Compatible tableur',
+    importData: 'Importer des données',
+    importSubtitle: 'JSON ou CSV — les entrées du même jour sont remplacées',
+    footer: 'Trend garde tout sur cet appareil. Ta pousse croit en toi.',
+  },
+  alerts: {
+    permissionRequired: 'Autorisation requise',
+    permissionBody:
+      'Active les notifications dans les réglages de l’appareil pour utiliser les rappels.',
+    nothingToExport: 'Rien à exporter',
+    nothingToExportBody: 'Note d’abord un poids, puis reviens ici.',
+    exportFailed: 'Échec de l’export',
+    importFailed: 'Échec de l’import',
+    importTitle: 'Importer des données',
+    importConfirm:
+      'Importer {{count}} entrées depuis {{filename}} ? Les entrées existantes à la même date seront remplacées.',
+    importComplete: 'Import terminé',
+    importCompleteBody: {
+      one: '{{count}} entrée fusionnée.',
+      other: '{{count}} entrées fusionnées.',
+    },
+    cancel: 'Annuler',
+    import: 'Importer',
+    unknownError: 'Erreur inconnue',
+  },
+  form: {
+    placeholderToday: 'Aujourd’hui : appuie pour mettre à jour',
+    placeholderPast: 'Appuie pour mettre à jour',
+    placeholderEmpty: 'Ton poids',
+    save: 'Enregistrer',
+    saved: 'Enregistré — bien joué.',
+    a11yInput: 'Saisie du poids',
+    a11ySave: 'Enregistrer le poids du jour',
+    errorEmpty: 'Saisis un nombre',
+    errorNotANumber: 'Cela ne ressemble pas à un nombre',
+    errorNegative: 'Le poids doit être positif',
+    errorTooLarge: 'Cela semble trop élevé',
+  },
+  emptyState: {
+    title: 'Plante ton premier point',
+    subtitle: 'Note un poids dans l’onglet Aujourd’hui et ta tendance démarrera ici.',
+  },
+  notification: {
+    channelName: 'Rappel quotidien',
+    title: 'C’est le moment de noter ton poids',
+    body: 'Un petit geste pour garder une tendance honnête.',
+  },
+  timePicker: { changeLabel: 'Modifier {{label}}' },
+} satisfies Translations;
+
+export default fr;
