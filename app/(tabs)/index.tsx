@@ -19,22 +19,11 @@ export default function TodayScreen() {
 
   const [activeDate, setActiveDate] = useActiveDate();
   const isToday = activeDate === todayKey();
+  const isYesterday = activeDate === addDays(todayKey(), -1);
+  const dateLabel = isToday ? 'Today' : isYesterday ? 'Yesterday' : formatLong(activeDate);
 
   const activeEntry = entries.find((e) => e.date === activeDate);
   const previousEntry = [...entries].reverse().find((e) => compareKey(e.date, activeDate) < 0);
-
-  const greeting = activeEntry
-    ? isToday
-      ? "Today's weight"
-      : "That day's weight"
-    : isToday
-      ? 'How are you today?'
-      : 'No entry for this day';
-  const subtitle = activeEntry
-    ? formatWeight(activeEntry.kg, settings.unit)
-    : isToday
-      ? 'Log a weight to keep your trend going.'
-      : 'Tap below to add one for this day.';
 
   let delta: string | null = null;
   if (activeEntry && previousEntry) {
@@ -79,7 +68,9 @@ export default function TodayScreen() {
               ]}>
               <IconSymbol name="chevron.right" size={18} color={palette.text} style={styles.flip} />
             </Pressable>
-            <ThemedText style={styles.date}>{formatLong(activeDate)}</ThemedText>
+            <ThemedText type="title" style={styles.date}>
+              {dateLabel}
+            </ThemedText>
             <Pressable
               onPress={goForward}
               disabled={isToday}
@@ -98,11 +89,6 @@ export default function TodayScreen() {
               <IconSymbol name="chevron.right" size={18} color={palette.text} />
             </Pressable>
           </View>
-
-          <ThemedText type="title" style={styles.greeting}>
-            {greeting}
-          </ThemedText>
-          <ThemedText style={[styles.subtitle, { color: palette.muted }]}>{subtitle}</ThemedText>
 
           <View style={styles.formWrap}>
             <WeightEntryForm
@@ -144,7 +130,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    marginBottom: 24,
   },
   dateButton: {
     width: 36,
@@ -155,9 +141,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   flip: { transform: [{ scaleX: -1 }] },
-  date: { fontSize: 14, opacity: 0.8, textAlign: 'center', flex: 1 },
-  greeting: { textAlign: 'center', marginTop: 4 },
-  subtitle: { textAlign: 'center', marginTop: 4, marginBottom: 24, fontSize: 16 },
+  date: { textAlign: 'center', flex: 1 },
   formWrap: { marginTop: 8 },
   deltaCard: {
     marginTop: 24,
