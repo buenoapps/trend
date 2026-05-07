@@ -1,50 +1,57 @@
-# Welcome to your Expo app 👋
+# Trend
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A small weight-tracking app built on Expo. Log a weight per day, watch the curve, and pick the unit that feels right.
 
-## Get started
+## Tabs
 
-1. Install dependencies
+- **Today** — log or update today's weight (or step the date back to backfill a missed day). Sprout mascot reacts to whether you've logged.
+- **Trend** — line chart of every entry over time, with a delta-since-last-entry summary.
+- **Settings** — kg ↔ lb toggle, daily reminder notification, export/import the local store as JSON.
 
-   ```bash
-   npm install
-   ```
+Data lives in `AsyncStorage` on-device; nothing is sent over the network.
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Running locally
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+From the Expo CLI menu, open the app on iOS Simulator, Android Emulator, Expo Go, or `w` for the web preview.
 
-## Learn more
+## Checks
 
-To learn more about developing your project with Expo, look at the following resources:
+The same four commands run in CI on every PR and push to `main` (see `.github/workflows/ci.yml`):
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npm run lint           # expo lint
+npx tsc --noEmit       # type-check
+npm test               # jest (jest-expo preset)
+npx expo export --platform web   # production web bundle
+```
 
-## Join the community
+## Project layout
 
-Join our community of developers creating universal apps.
+```
+app/                  expo-router file-based routes
+  (tabs)/
+    index.tsx         Today screen
+    history.tsx       Trend (chart) screen
+    settings.tsx      Settings screen
+  _layout.tsx         Root stack + notification deep-link
+components/           UI primitives (chart, form, mascot, themed text/view)
+lib/
+  hooks.ts            useSyncExternalStore-backed shared stores
+  storage.ts          AsyncStorage persistence
+  dates.ts            DateKey ('YYYY-MM-DD') helpers
+  units.ts            kg ↔ lb conversion + parsing
+  notifications.ts    expo-notifications wrapper
+  serialize.ts        export/import payload shape
+  share.ts            file picker + share-sheet glue
+constants/, hooks/    theme + color-scheme helpers
+.github/workflows/    CI workflow
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Built with
+
+Expo 54, React 19, expo-router 6, `react-native-gifted-charts`, `@react-native-async-storage/async-storage`, jest-expo.
