@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { act, render, screen } from '@testing-library/react-native';
 import { Text } from 'react-native';
 
-import { __resetHooksForTest, useEntries, useSettings } from '../hooks';
+import { __resetHooksForTest, useActiveDate, useEntries, useSettings } from '../hooks';
 
 function SettingsProbe({ id }: { id: string }) {
   const { settings, update } = useSettings();
@@ -81,5 +81,40 @@ describe('useEntries (shared store)', () => {
 
     expect(screen.getByTestId('a-count').props.children).toBe(1);
     expect(screen.getByTestId('b-count').props.children).toBe(1);
+  });
+});
+
+function ActiveDateProbe({ id }: { id: string }) {
+  const [date, setDate] = useActiveDate();
+  return (
+    <>
+      <Text testID={`${id}-date`}>{date}</Text>
+      <Text testID={`${id}-set`} onPress={() => setDate('2026-05-04')}>
+        set
+      </Text>
+    </>
+  );
+}
+
+describe('useActiveDate (shared store)', () => {
+  beforeEach(() => {
+    __resetHooksForTest();
+  });
+
+  it('setting from one consumer re-renders all consumers', async () => {
+    render(
+      <>
+        <ActiveDateProbe id="a" />
+        <ActiveDateProbe id="b" />
+      </>,
+    );
+    await act(async () => {});
+
+    await act(async () => {
+      screen.getByTestId('a-set').props.onPress();
+    });
+
+    expect(screen.getByTestId('a-date').props.children).toBe('2026-05-04');
+    expect(screen.getByTestId('b-date').props.children).toBe('2026-05-04');
   });
 });

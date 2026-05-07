@@ -1,5 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
+import { todayKey } from '@/lib/dates';
+
 import { WeightEntryForm } from '../weight-entry-form';
 
 const flush = () => act(async () => {});
@@ -36,16 +38,31 @@ describe('WeightEntryForm', () => {
     expect(screen.getByText("That doesn't look like a number")).toBeTruthy();
   });
 
-  it('clears the input when the date prop changes', async () => {
+  it('prefills the input from initialKg and refreshes when the date changes', async () => {
     const onSave = jest.fn();
     const { rerender } = render(
-      <WeightEntryForm date="2026-05-01" unit="kg" onSave={onSave} />,
+      <WeightEntryForm date="2026-05-01" unit="kg" initialKg={72.5} onSave={onSave} />,
     );
-    const input = screen.getByLabelText('Weight input');
-    fireEvent.changeText(input, '72.5');
-    expect(input.props.value).toBe('72.5');
+    expect(screen.getByLabelText('Weight input').props.value).toBe('72.5');
 
-    rerender(<WeightEntryForm date="2026-05-02" unit="kg" onSave={onSave} />);
+    rerender(<WeightEntryForm date="2026-05-02" unit="kg" initialKg={70} onSave={onSave} />);
+    expect(screen.getByLabelText('Weight input').props.value).toBe('70.0');
+
+    rerender(<WeightEntryForm date="2026-05-03" unit="kg" onSave={onSave} />);
     expect(screen.getByLabelText('Weight input').props.value).toBe('');
+  });
+
+  it('uses a today-specific placeholder only when the date is today', async () => {
+    const onSave = jest.fn();
+    const { rerender } = render(
+      <WeightEntryForm date={todayKey()} unit="kg" initialKg={72} onSave={onSave} />,
+    );
+    expect(screen.getByLabelText('Weight input').props.placeholder).toBe('Today: tap to update');
+
+    rerender(<WeightEntryForm date="2020-01-01" unit="kg" initialKg={72} onSave={onSave} />);
+    expect(screen.getByLabelText('Weight input').props.placeholder).toBe('Tap to update');
+
+    rerender(<WeightEntryForm date="2020-01-02" unit="kg" onSave={onSave} />);
+    expect(screen.getByLabelText('Weight input').props.placeholder).toBe('Your weight');
   });
 });

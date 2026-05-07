@@ -5,7 +5,8 @@ import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { parseWeightInput, reasonToMessage } from '@/lib/units';
+import { todayKey } from '@/lib/dates';
+import { formatWeight, parseWeightInput, reasonToMessage } from '@/lib/units';
 import type { DateKey, Unit, WeightEntry } from '@/lib/types';
 
 type Props = {
@@ -22,11 +23,15 @@ export function WeightEntryForm({ date, unit, initialKg, onSave }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<number | null>(null);
 
+  const isToday = date === todayKey();
+  const placeholder =
+    initialKg != null ? (isToday ? 'Today: tap to update' : 'Tap to update') : 'Your weight';
+
   useEffect(() => {
-    setText('');
+    setText(initialKg != null ? formatWeight(initialKg, unit, { withUnit: false }) : '');
     setError(null);
     setSavedAt(null);
-  }, [date]);
+  }, [date, initialKg, unit]);
 
   const handleSave = async () => {
     const result = parseWeightInput(text, unit);
@@ -58,7 +63,7 @@ export function WeightEntryForm({ date, unit, initialKg, onSave }: Props) {
             setError(null);
             setSavedAt(null);
           }}
-          placeholder={initialKg != null ? `Today: tap to update` : 'Your weight'}
+          placeholder={placeholder}
           placeholderTextColor={palette.muted}
           keyboardType="decimal-pad"
           inputMode="decimal"

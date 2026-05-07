@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,7 +8,7 @@ import { WeightEntryForm } from '@/components/weight-entry-form';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { addDays, compareKey, formatLong, todayKey } from '@/lib/dates';
-import { useEntries, useSettings } from '@/lib/hooks';
+import { useActiveDate, useEntries, useSettings } from '@/lib/hooks';
 import { formatWeight } from '@/lib/units';
 
 export default function TodayScreen() {
@@ -18,7 +17,7 @@ export default function TodayScreen() {
   const { entries, upsert } = useEntries();
   const { settings } = useSettings();
 
-  const [activeDate, setActiveDate] = useState(todayKey());
+  const [activeDate, setActiveDate] = useActiveDate();
   const isToday = activeDate === todayKey();
 
   const activeEntry = entries.find((e) => e.date === activeDate);
@@ -48,7 +47,7 @@ export default function TodayScreen() {
     }
   }
 
-  const goBack = () => setActiveDate((d) => addDays(d, -1));
+  const goBack = () => setActiveDate(addDays(activeDate, -1));
   const goForward = () => {
     if (isToday) return;
     const next = addDays(activeDate, 1);
