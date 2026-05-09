@@ -1,4 +1,7 @@
-import { __resetI18nForTest, getLocale, setLocale, t } from '../i18n';
+import { act, render } from '@testing-library/react-native';
+import { Text } from 'react-native';
+
+import { __resetI18nForTest, getLocale, setLocale, t, type TFunction, type TranslationKey, useT } from '../i18n';
 import de from '../i18n/de';
 import en from '../i18n/en';
 import es from '../i18n/es';
@@ -48,7 +51,7 @@ describe('i18n runtime', () => {
 
   it('falls back to English for missing keys', () => {
     setLocale('de');
-    expect(t('does.not.exist')).toContain('does.not.exist');
+    expect(t('does.not.exist' as TranslationKey)).toContain('does.not.exist');
   });
 
   it('interpolates parameters', () => {
@@ -65,5 +68,48 @@ describe('i18n runtime', () => {
     setLocale('de');
     expect(t('history.entriesInWindow', { count: 1 })).toBe('1 Eintrag in diesem Zeitraum');
     expect(t('history.entriesInWindow', { count: 5 })).toBe('5 Einträge in diesem Zeitraum');
+  });
+});
+
+describe('useT', () => {
+  beforeEach(() => {
+    __resetI18nForTest();
+  });
+
+  it('returns a new function reference whenever the locale changes', () => {
+    const refs: TFunction[] = [];
+    function Probe() {
+      refs.push(useT());
+      return <Text testID="probe">x</Text>;
+    }
+    render(<Probe />);
+    const first = refs[refs.length - 1];
+
+    act(() => {
+      setLocale('de');
+    });
+    const second = refs[refs.length - 1];
+    expect(second).not.toBe(first);
+    expect(second('tabs.today')).toBe('Heute');
+
+    act(() => {
+      setLocale('fr');
+    });
+    const third = refs[refs.length - 1];
+    expect(third).not.toBe(second);
+    expect(third('tabs.today')).toBe('Aujourd’hui');
+  });
+
+  it('keeps the same reference across renders when the locale is unchanged', () => {
+    const refs: TFunction[] = [];
+    function Probe({ tick }: { tick: number }) {
+      refs.push(useT());
+      return <Text testID="probe">{tick}</Text>;
+    }
+    const { rerender } = render(<Probe tick={0} />);
+    const first = refs[refs.length - 1];
+    rerender(<Probe tick={1} />);
+    const second = refs[refs.length - 1];
+    expect(second).toBe(first);
   });
 });

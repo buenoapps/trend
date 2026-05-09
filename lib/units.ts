@@ -31,7 +31,13 @@ export function parseWeightInput(text: string, unit: Unit): ParseResult {
   return { ok: true, kg };
 }
 
-export function reasonToKey(reason: Exclude<ParseResult, { ok: true }>['reason']): string {
+export type FormErrorKey =
+  | 'form.errorEmpty'
+  | 'form.errorNotANumber'
+  | 'form.errorNegative'
+  | 'form.errorTooLarge';
+
+export function reasonToKey(reason: Exclude<ParseResult, { ok: true }>['reason']): FormErrorKey {
   switch (reason) {
     case 'empty':
       return 'form.errorEmpty';

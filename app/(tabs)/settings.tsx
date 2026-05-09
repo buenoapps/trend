@@ -7,7 +7,13 @@ import { TimePickerRow } from '@/components/time-picker-row';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useEntries, useSettings } from '@/lib/hooks';
-import { SUPPORTED_LOCALES, type SupportedLocale, useT } from '@/lib/i18n';
+import {
+  resolveLocale,
+  setLocale,
+  SUPPORTED_LOCALES,
+  type SupportedLocale,
+  useT,
+} from '@/lib/i18n';
 import {
   cancelReminder,
   isSupported as notificationsSupported,
@@ -63,7 +69,10 @@ export default function SettingsScreen() {
 
   const setUnit = (unit: Unit) => update({ unit });
 
-  const setLocaleChoice = (localeChoice: LocaleChoice) => update({ localeChoice });
+  const setLocaleChoice = (localeChoice: LocaleChoice) => {
+    setLocale(resolveLocale(localeChoice));
+    update({ localeChoice });
+  };
 
   const setReminderEnabled = async (enabled: boolean) => {
     if (!supportsReminders) return;
