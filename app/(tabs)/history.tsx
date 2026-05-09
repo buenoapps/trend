@@ -9,16 +9,16 @@ import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { compareKey, daysAgoKey } from '@/lib/dates';
 import { useEntries, useSettings } from '@/lib/hooks';
-import { useT } from '@/lib/i18n';
+import { useT, type TranslationKey } from '@/lib/i18n';
 import { formatWeight } from '@/lib/units';
 
 type Range = '7' | '30' | 'all';
 
-const RANGES: { key: Range; labelKey: string; days: number | null }[] = [
+const RANGES = [
   { key: '7', labelKey: 'history.range7', days: 7 },
   { key: '30', labelKey: 'history.range30', days: 30 },
   { key: 'all', labelKey: 'history.rangeAll', days: null },
-];
+] as const satisfies readonly { key: Range; labelKey: TranslationKey; days: number | null }[];
 
 export default function HistoryScreen() {
   const scheme = useColorScheme() ?? 'light';

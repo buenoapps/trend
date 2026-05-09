@@ -1,19 +1,39 @@
 import { getLocales } from 'expo-localization';
 import { I18n } from 'i18n-js';
-import { useSyncExternalStore } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
 
 import type { LocaleChoice } from '../types';
 
 import de from './de';
-import en from './en';
+import en, { type Translations } from './en';
 import es from './es';
 import fr from './fr';
-import it from './it';
+import italian from './it';
 
 export const SUPPORTED_LOCALES = ['en', 'de', 'es', 'fr', 'it'] as const;
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
-const i18n = new I18n({ en, de, es, fr, it });
+type Plural = { one: string; other: string };
+
+type Leaves<T, P extends string = ''> = T extends Plural | string
+  ? P
+  : T extends object
+    ? {
+        [K in keyof T]: Leaves<
+          T[K],
+          P extends '' ? Extract<K, string> : `${P}.${Extract<K, string>}`
+        >;
+      }[keyof T]
+    : never;
+
+export type TranslationKey = Exclude<Leaves<Translations>, ''>;
+
+export type TFunction = (
+  key: TranslationKey,
+  params?: Record<string, string | number>,
+) => string;
+
+const i18n = new I18n({ en, de, es, fr, it: italian });
 i18n.enableFallback = true;
 i18n.defaultLocale = 'en';
 
@@ -53,13 +73,19 @@ export function getLocale(): SupportedLocale {
   return currentLocale;
 }
 
-export function t(key: string, params?: Record<string, string | number>): string {
-  return i18n.t(key, params);
-}
+export const t: TFunction = (key, params) => i18n.t(key, params);
 
-export function useT(): typeof t {
-  useSyncExternalStore(subscribe, () => currentLocale, () => currentLocale);
-  return t;
+// React Compiler memoizes the result of `t(key)` based on the identity of `t`
+// and its arguments. Since `t` reads `i18n.locale` (a hidden mutable side-channel),
+// the compiler cannot detect when the result should change. Returning a fresh
+// closure per locale gives every downstream memoizer a new dependency to track,
+// so locale switches propagate through every `t(...)` call site.
+export function useT(): TFunction {
+  const locale = useSyncExternalStore(subscribe, () => currentLocale, () => currentLocale);
+  return useMemo<TFunction>(
+    () => (key, params) => i18n.t(key, params),
+    [locale],
+  );
 }
 
 export function useLocale(): SupportedLocale {
