@@ -1,4 +1,4 @@
-import { Host, TabView } from '@expo/ui/swift-ui';
+import { Host, RNHostView, TabView } from '@expo/ui/swift-ui';
 import { tabViewStyle } from '@expo/ui/swift-ui/modifiers';
 import { StyleSheet } from 'react-native';
 
@@ -15,19 +15,25 @@ export default function TabLayout() {
     <Host style={styles.host}>
       <TabView modifiers={[tabViewStyle({ type: 'automatic' })]}>
         <TabView.Tab value="today" label={t('tabs.today')} systemImage="leaf.fill">
-          <TodayScreen />
+          <RNHostView>
+            <TodayScreen />
+          </RNHostView>
         </TabView.Tab>
         <TabView.Tab
           value="trend"
           label={t('tabs.trend')}
           systemImage="chart.line.uptrend.xyaxis">
-          <HistoryScreen />
+          <RNHostView>
+            <HistoryScreen />
+          </RNHostView>
         </TabView.Tab>
         <TabView.Tab
           value="settings"
           label={t('tabs.settings')}
           systemImage="gearshape.fill">
-          <SettingsScreen />
+          <RNHostView>
+            <SettingsScreen />
+          </RNHostView>
         </TabView.Tab>
       </TabView>
     </Host>
