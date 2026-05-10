@@ -12,7 +12,7 @@ export default function TabLayout() {
   const t = useT();
 
   return (
-    <Host style={styles.host}>
+    <Host style={styles.host} ignoreSafeArea="all">
       <TabView modifiers={[tabViewStyle({ type: 'automatic' })]}>
         <TabView.Tab value="today" label={t('tabs.today')} systemImage="leaf.fill">
           <RNHostView>
