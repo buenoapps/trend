@@ -4,91 +4,90 @@
     "categories": ["HEALTH_AND_FITNESS", "LIFESTYLE"],
     "info": {
       "en-US": {
-        "title": "Trend — Weight Tracker",
-        "subtitle": "Calm daily weight tracking",
-        "description": "Trend is a calm, private weight tracker that helps you spot the long-term arc instead of fixating on daily fluctuations.\n\nLog a weight in seconds, and a friendly sprout charts your trend over 7 days, 30 days, or all time. Optional daily reminders nudge you at the same time each day — no streaks, no guilt, no social feed.\n\nYour data stays on your device. Trend never sends weights to a server, never shows ads, and never asks you to sign in. Export to JSON or CSV any time so your numbers are always yours.\n\nFeatures:\n• Tap-to-log daily entries in kilograms or pounds\n• Visual trend chart with 7-day, 30-day, and all-time views\n• Change, low, and high stats per window\n• Optional daily reminder at a time you choose\n• JSON and CSV export and import\n• Available in English, German, Spanish, French, and Italian\n• Works fully offline; no account required",
+        "title": "Trend — Family Weight Tracker",
+        "subtitle": "Weight tracking for everyone",
+        "description": "Trend is a calm, private weight tracker for your whole family — one app for everyone under one roof.\n\nAdd a card for each family member, give them a colour, and mark them as an adult or a kid. Adults can set a gentle goal — just tracking, losing, or gaining. Log a weight straight from each person's card, or open their page for a full chart and history.\n\nYour data stays on your device. Trend never sends weights to a server, never shows ads, and never asks you to sign in. Export a full JSON backup any time, or a per-person CSV — your numbers are always yours.\n\nFeatures:\n• A card per family member on one calm home screen\n• Tap-to-log daily entries in kilograms or pounds\n• Per-person trend chart with 7-day, 30-day, and all-time views\n• Adult and kid profiles with an optional weight goal\n• Big, small, or hidden cards — show only who you want\n• JSON backup and per-person CSV export\n• Optional daily reminder at a time you choose\n• Available in English, German, Spanish, French, and Italian\n• Works fully offline; no account required",
         "keywords": [
           "weight",
           "tracker",
+          "family",
+          "kids",
           "scale",
           "trend",
           "health",
           "fitness",
-          "kg",
-          "lb",
+          "goal",
           "journal",
           "daily",
-          "log",
-          "bmi",
-          "wellness"
+          "bmi"
         ]
       },
       "de-DE": {
-        "title": "Trend — Gewichts-Tracker",
-        "subtitle": "Ruhiges Gewichts-Tagebuch",
-        "description": "Trend ist ein ruhiger, privater Gewichts-Tracker, der dir hilft, den langfristigen Verlauf zu sehen, statt dich an täglichen Schwankungen festzuhalten.\n\nTrage dein Gewicht in Sekunden ein und ein freundlicher Sprössling zeichnet deinen Verlauf über 7 Tage, 30 Tage oder die gesamte Zeit. Optionale tägliche Erinnerungen melden sich jeden Tag zur selben Zeit — keine Streaks, keine Schuldgefühle, kein Social Feed.\n\nDeine Daten bleiben auf deinem Gerät. Trend sendet niemals Gewichtsdaten an einen Server, zeigt keine Werbung und verlangt keine Anmeldung. Exportiere jederzeit nach JSON oder CSV — deine Zahlen gehören dir.\n\nFunktionen:\n• Tippen-zum-Eintragen tägliche Werte in Kilogramm oder Pfund\n• Visueller Verlauf mit 7-Tage-, 30-Tage- und Gesamtansicht\n• Veränderung, Tiefst- und Höchstwert pro Zeitraum\n• Optionale tägliche Erinnerung zur gewünschten Uhrzeit\n• JSON- und CSV-Export und -Import\n• Verfügbar auf Englisch, Deutsch, Spanisch, Französisch und Italienisch\n• Funktioniert vollständig offline; kein Konto erforderlich",
+        "title": "Trend — Familien-Gewicht",
+        "subtitle": "Gewicht für die ganze Familie",
+        "description": "Trend ist ein ruhiger, privater Gewichts-Tracker für deine ganze Familie — eine App für alle unter einem Dach.\n\nLege für jedes Familienmitglied eine Karte an, gib ihr eine Farbe und markiere die Person als Erwachsener oder Kind. Erwachsene können ein sanftes Ziel festlegen — nur verfolgen, abnehmen oder zunehmen. Trage ein Gewicht direkt über die Karte ein oder öffne die Seite der Person für Diagramm und Verlauf.\n\nDeine Daten bleiben auf deinem Gerät. Trend sendet niemals Gewichtsdaten an einen Server, zeigt keine Werbung und verlangt keine Anmeldung. Exportiere jederzeit ein vollständiges JSON-Backup oder eine CSV-Datei pro Person — deine Zahlen gehören dir.\n\nFunktionen:\n• Eine Karte pro Familienmitglied auf einem ruhigen Startbildschirm\n• Tippen-zum-Eintragen täglicher Werte in Kilogramm oder Pfund\n• Verlaufsdiagramm pro Person mit 7-Tage-, 30-Tage- und Gesamtansicht\n• Profile für Erwachsene und Kinder mit optionalem Gewichtsziel\n• Große, kleine oder ausgeblendete Karten — zeige nur, wen du willst\n• JSON-Backup und CSV-Export pro Person\n• Optionale tägliche Erinnerung zur gewünschten Uhrzeit\n• Verfügbar auf Englisch, Deutsch, Spanisch, Französisch und Italienisch\n• Funktioniert vollständig offline; kein Konto erforderlich",
         "keywords": [
           "Gewicht",
+          "Familie",
+          "Kinder",
           "Waage",
           "Tracker",
           "Trend",
           "Gesundheit",
           "Fitness",
-          "kg",
-          "Tagebuch",
-          "täglich",
-          "Wellness"
+          "Ziel",
+          "Tagebuch"
         ]
       },
       "es-ES": {
-        "title": "Trend — Control de peso",
-        "subtitle": "Tu peso, sin presión",
-        "description": "Trend es un seguimiento de peso tranquilo y privado que te ayuda a ver la tendencia a largo plazo en lugar de obsesionarte con las variaciones diarias.\n\nRegistra tu peso en segundos y un brote amistoso dibuja tu tendencia en 7 días, 30 días o todo el tiempo. Los recordatorios diarios opcionales te avisan a la misma hora cada día — sin rachas, sin culpa, sin red social.\n\nTus datos se quedan en tu dispositivo. Trend nunca envía pesos a un servidor, nunca muestra anuncios y nunca te pide iniciar sesión. Exporta a JSON o CSV cuando quieras — tus números siempre son tuyos.\n\nFunciones:\n• Registro diario en kilogramos o libras con un toque\n• Gráfico de tendencia con vistas de 7 días, 30 días y todo el tiempo\n• Cambio, mínimo y máximo por intervalo\n• Recordatorio diario opcional a la hora que elijas\n• Exportación e importación en JSON y CSV\n• Disponible en inglés, alemán, español, francés e italiano\n• Funciona totalmente sin conexión; no requiere cuenta",
+        "title": "Trend — Peso en familia",
+        "subtitle": "El peso de toda la familia",
+        "description": "Trend es un seguimiento de peso tranquilo y privado para toda tu familia — una app para todos bajo un mismo techo.\n\nAñade una tarjeta para cada miembro de la familia, dale un color y márcalo como adulto o niño. Los adultos pueden fijar un objetivo suave — solo seguimiento, perder o ganar. Registra un peso directamente desde la tarjeta de cada persona o abre su página para ver el gráfico y el historial completos.\n\nTus datos se quedan en tu dispositivo. Trend nunca envía pesos a un servidor, nunca muestra anuncios y nunca te pide iniciar sesión. Exporta una copia de seguridad JSON completa cuando quieras, o un CSV por persona — tus números siempre son tuyos.\n\nFunciones:\n• Una tarjeta por miembro de la familia en una pantalla de inicio tranquila\n• Registro diario en kilogramos o libras con un toque\n• Gráfico de tendencia por persona con vistas de 7 días, 30 días y todo el tiempo\n• Perfiles de adulto y niño con un objetivo de peso opcional\n• Tarjetas grandes, pequeñas u ocultas — muestra solo a quien quieras\n• Copia de seguridad JSON y exportación CSV por persona\n• Recordatorio diario opcional a la hora que elijas\n• Disponible en inglés, alemán, español, francés e italiano\n• Funciona totalmente sin conexión; no requiere cuenta",
         "keywords": [
           "peso",
+          "familia",
+          "niños",
           "báscula",
           "tracker",
           "tendencia",
           "salud",
           "fitness",
-          "kg",
-          "diario",
-          "bienestar",
-          "registro"
+          "objetivo",
+          "diario"
         ]
       },
       "fr-FR": {
-        "title": "Trend — Suivi du poids",
-        "subtitle": "Ton poids, sans pression",
-        "description": "Trend est un suivi de poids calme et privé qui t'aide à voir la tendance sur la durée plutôt que de fixer les variations quotidiennes.\n\nNote ton poids en quelques secondes et une pousse amicale trace ta tendance sur 7 jours, 30 jours ou depuis le début. Des rappels quotidiens optionnels arrivent à la même heure chaque jour — sans série, sans culpabilité, sans fil social.\n\nTes données restent sur ton appareil. Trend n'envoie jamais de poids à un serveur, ne montre pas de publicité et ne demande pas de compte. Exporte en JSON ou CSV quand tu veux — tes chiffres t'appartiennent.\n\nFonctionnalités :\n• Saisie quotidienne en kilogrammes ou livres en un appui\n• Graphique de tendance avec vues 7 jours, 30 jours et tout\n• Variation, mini et maxi par période\n• Rappel quotidien optionnel à l'heure de ton choix\n• Export et import JSON et CSV\n• Disponible en anglais, allemand, espagnol, français et italien\n• Fonctionne entièrement hors ligne ; aucun compte requis",
+        "title": "Trend — Poids en famille",
+        "subtitle": "Le poids de toute la famille",
+        "description": "Trend est un suivi de poids calme et privé pour toute ta famille — une seule app pour tout le monde sous le même toit.\n\nAjoute une carte pour chaque membre de la famille, donne-lui une couleur et indique s'il s'agit d'un adulte ou d'un enfant. Les adultes peuvent définir un objectif tout en douceur — simple suivi, perdre ou prendre du poids. Note un poids directement depuis la carte de chacun, ou ouvre sa page pour le graphique et l'historique complets.\n\nTes données restent sur ton appareil. Trend n'envoie jamais de poids à un serveur, ne montre pas de publicité et ne demande pas de compte. Exporte une sauvegarde JSON complète quand tu veux, ou un CSV par personne — tes chiffres t'appartiennent.\n\nFonctionnalités :\n• Une carte par membre de la famille sur un écran d'accueil apaisant\n• Saisie quotidienne en kilogrammes ou livres en un appui\n• Graphique de tendance par personne avec vues 7 jours, 30 jours et tout\n• Profils adulte et enfant avec un objectif de poids optionnel\n• Cartes grandes, petites ou masquées — n'affiche que qui tu veux\n• Sauvegarde JSON et export CSV par personne\n• Rappel quotidien optionnel à l'heure de ton choix\n• Disponible en anglais, allemand, espagnol, français et italien\n• Fonctionne entièrement hors ligne ; aucun compte requis",
         "keywords": [
           "poids",
+          "famille",
+          "enfants",
           "balance",
           "suivi",
           "tendance",
           "santé",
           "forme",
-          "kg",
-          "journal",
-          "quotidien",
-          "bien-être"
+          "objectif",
+          "journal"
         ]
       },
       "it": {
-        "title": "Trend — Diario del peso",
-        "subtitle": "Il tuo peso, con calma",
-        "description": "Trend è un diario del peso calmo e privato che ti aiuta a notare l'andamento a lungo termine invece di fissarti sulle oscillazioni quotidiane.\n\nRegistra il peso in pochi secondi e un germoglio amichevole disegna il tuo andamento su 7 giorni, 30 giorni o sempre. I promemoria quotidiani facoltativi arrivano alla stessa ora ogni giorno — niente serie, niente sensi di colpa, nessun feed social.\n\nI tuoi dati restano sul dispositivo. Trend non invia mai i pesi a un server, non mostra pubblicità e non richiede di accedere. Esporta in JSON o CSV quando vuoi — i tuoi numeri sono solo tuoi.\n\nFunzioni:\n• Registrazione quotidiana in chilogrammi o libbre con un tocco\n• Grafico dell'andamento con viste 7 giorni, 30 giorni e tutto\n• Variazione, minimo e massimo per intervallo\n• Promemoria giornaliero facoltativo all'ora che scegli\n• Esportazione e importazione JSON e CSV\n• Disponibile in inglese, tedesco, spagnolo, francese e italiano\n• Funziona completamente offline; nessun account richiesto",
+        "title": "Trend — Peso di famiglia",
+        "subtitle": "Il peso di tutta la famiglia",
+        "description": "Trend è un diario del peso calmo e privato per tutta la tua famiglia — un'unica app per tutti sotto lo stesso tetto.\n\nAggiungi una scheda per ogni membro della famiglia, assegnale un colore e indica se è un adulto o un bambino. Gli adulti possono impostare un obiettivo leggero — solo monitoraggio, perdere o aumentare di peso. Registra un peso direttamente dalla scheda di ogni persona, oppure apri la sua pagina per grafico e cronologia completi.\n\nI tuoi dati restano sul dispositivo. Trend non invia mai i pesi a un server, non mostra pubblicità e non richiede di accedere. Esporta un backup JSON completo quando vuoi, oppure un CSV per persona — i tuoi numeri sono solo tuoi.\n\nFunzioni:\n• Una scheda per ogni membro della famiglia su una schermata iniziale tranquilla\n• Registrazione quotidiana in chilogrammi o libbre con un tocco\n• Grafico dell'andamento per persona con viste 7 giorni, 30 giorni e tutto\n• Profili adulto e bambino con un obiettivo di peso facoltativo\n• Schede grandi, piccole o nascoste — mostra solo chi vuoi\n• Backup JSON ed esportazione CSV per persona\n• Promemoria giornaliero facoltativo all'ora che scegli\n• Disponibile in inglese, tedesco, spagnolo, francese e italiano\n• Funziona completamente offline; nessun account richiesto",
         "keywords": [
           "peso",
+          "famiglia",
+          "bambini",
           "bilancia",
           "tracker",
           "andamento",
           "salute",
           "fitness",
-          "kg",
-          "diario",
-          "quotidiano",
-          "benessere"
+          "obiettivo",
+          "diario"
         ]
       }
     }
