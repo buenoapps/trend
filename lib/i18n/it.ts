@@ -89,7 +89,7 @@ const it = {
   },
   timePicker: { changeLabel: 'Modifica {{label}}' },
   home: {
-    title: 'Famiglia',
+    title: 'Trend',
     addMember: 'Aggiungi un membro della famiglia',
     addA11y: 'Aggiungi un membro della famiglia',
     settingsA11y: 'Impostazioni',
@@ -100,6 +100,7 @@ const it = {
   person: {
     tabChart: 'Grafico',
     tabHistory: 'Cronologia',
+    historyEmpty: 'Ancora nessuna voce',
     settingsA11y: 'Impostazioni della persona',
     backA11y: 'Indietro',
     notFoundTitle: 'Persona non trovata',
