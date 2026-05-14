@@ -92,7 +92,7 @@ const de = {
   },
   timePicker: { changeLabel: '{{label}} ändern' },
   home: {
-    title: 'Familie',
+    title: 'Trend',
     addMember: 'Familienmitglied hinzufügen',
     addA11y: 'Familienmitglied hinzufügen',
     settingsA11y: 'Einstellungen',
@@ -103,6 +103,7 @@ const de = {
   person: {
     tabChart: 'Diagramm',
     tabHistory: 'Verlauf',
+    historyEmpty: 'Noch keine Einträge',
     settingsA11y: 'Personeneinstellungen',
     backA11y: 'Zurück',
     notFoundTitle: 'Person nicht gefunden',

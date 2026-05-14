@@ -85,7 +85,7 @@ const en = {
   },
   timePicker: { changeLabel: 'Change {{label}}' },
   home: {
-    title: 'Family',
+    title: 'Trend',
     addMember: 'Add family member',
     addA11y: 'Add family member',
     settingsA11y: 'Settings',
@@ -95,6 +95,7 @@ const en = {
   person: {
     tabChart: 'Chart',
     tabHistory: 'History',
+    historyEmpty: 'No entries yet',
     settingsA11y: 'Person settings',
     backA11y: 'Back',
     notFoundTitle: 'Person not found',
