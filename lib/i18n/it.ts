@@ -44,6 +44,8 @@ const it = {
     exportCsvSubtitle: 'Compatibile con i fogli di calcolo',
     importData: 'Importa dati',
     importSubtitle: 'JSON o CSV — le voci dello stesso giorno vengono sostituite',
+    familyMembers: 'Membri della famiglia',
+    familyMembersNote: 'Tocca un membro per modificarne profilo, colore o visibilità.',
     footer: 'Trend tiene tutto su questo dispositivo. Il tuo germoglio crede in te.',
   },
   alerts: {
@@ -86,6 +88,47 @@ const it = {
     body: 'Un tocco veloce mantiene il tuo andamento onesto.',
   },
   timePicker: { changeLabel: 'Modifica {{label}}' },
+  home: {
+    title: 'Famiglia',
+    addMember: 'Aggiungi un membro della famiglia',
+    addA11y: 'Aggiungi un membro della famiglia',
+    settingsA11y: 'Impostazioni',
+    emptyTitle: 'Ancora nessun membro della famiglia',
+    emptySubtitle:
+      'Aggiungi il tuo primo membro della famiglia per iniziare a registrare il peso insieme.',
+  },
+  person: {
+    tabChart: 'Grafico',
+    tabHistory: 'Cronologia',
+    settingsA11y: 'Impostazioni della persona',
+    backA11y: 'Indietro',
+    notFoundTitle: 'Persona non trovata',
+    notFoundBody: 'Questo membro della famiglia potrebbe essere stato eliminato.',
+    defaultName: 'Io',
+    delete: 'Elimina membro della famiglia',
+    deleteConfirmTitle: 'Eliminare {{name}}?',
+    deleteConfirmBody:
+      'Questo rimuove definitivamente {{name}} e tutte le sue voci di peso.',
+  },
+  personForm: {
+    nameLabel: 'Nome',
+    namePlaceholder: 'Inserisci un nome',
+    nameRequired: 'Inserisci un nome',
+    colorLabel: 'Colore',
+    kindLabel: 'Tipo',
+    kindAdult: 'Adulto',
+    kindKid: 'Bambino',
+    goalLabel: 'Obiettivo',
+    goalNone: 'Nessun obiettivo, solo monitoraggio',
+    goalLose: 'Perdere peso',
+    goalGain: 'Aumentare di peso',
+    cardLabel: 'Mostra nella schermata iniziale',
+    cardBig: 'Scheda grande',
+    cardSmall: 'Scheda piccola',
+    cardHidden: 'Nascosta',
+    create: 'Aggiungi un membro della famiglia',
+    save: 'Salva le modifiche',
+  },
 } satisfies Translations;
 
 export default it;
