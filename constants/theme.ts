@@ -58,6 +58,29 @@ export const Colors = {
   },
 };
 
+/**
+ * Per-person accent colours for the family tracker. Each entry carries a
+ * light/dark pair so a person's colour stays legible in either scheme,
+ * mirroring how `Colors[scheme]` is consumed elsewhere.
+ */
+export const PERSON_COLORS = [
+  { key: 'rose', light: '#E08AA8', dark: '#C76B92' },
+  { key: 'leaf', light: '#6FA46A', dark: '#9CC79A' },
+  { key: 'sky', light: '#5B95C9', dark: '#8FB8DD' },
+  { key: 'amber', light: '#D99A4E', dark: '#E0B274' },
+  { key: 'plum', light: '#9B72C4', dark: '#B79AD6' },
+  { key: 'teal', light: '#4FA89C', dark: '#7FC4BA' },
+  { key: 'coral', light: '#E0795C', dark: '#E09A84' },
+  { key: 'slate', light: '#6E7F8C', dark: '#97A6B1' },
+] as const;
+
+export type PersonColorKey = (typeof PERSON_COLORS)[number]['key'];
+
+export function personColor(colorKey: PersonColorKey, scheme: 'light' | 'dark'): string {
+  const entry = PERSON_COLORS.find((c) => c.key === colorKey) ?? PERSON_COLORS[0];
+  return entry[scheme];
+}
+
 export const Fonts = Platform.select({
   ios: {
     sans: 'system-ui',

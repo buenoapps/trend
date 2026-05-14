@@ -44,6 +44,8 @@ const fr = {
     exportCsvSubtitle: 'Compatible tableur',
     importData: 'Importer des données',
     importSubtitle: 'JSON ou CSV — les entrées du même jour sont remplacées',
+    familyMembers: 'Membres de la famille',
+    familyMembersNote: 'Touche un membre pour modifier son profil, sa couleur ou sa visibilité.',
     footer: 'Trend garde tout sur cet appareil. Ta pousse croit en toi.',
   },
   alerts: {
@@ -89,6 +91,47 @@ const fr = {
     body: 'Un petit geste pour garder une tendance honnête.',
   },
   timePicker: { changeLabel: 'Modifier {{label}}' },
+  home: {
+    title: 'Famille',
+    addMember: 'Ajouter un membre de la famille',
+    addA11y: 'Ajouter un membre de la famille',
+    settingsA11y: 'Réglages',
+    emptyTitle: 'Aucun membre de la famille',
+    emptySubtitle:
+      'Ajoute ton premier membre de la famille pour suivre le poids ensemble.',
+  },
+  person: {
+    tabChart: 'Graphique',
+    tabHistory: 'Historique',
+    settingsA11y: 'Réglages de la personne',
+    backA11y: 'Retour',
+    notFoundTitle: 'Personne introuvable',
+    notFoundBody: 'Ce membre de la famille a peut-être été supprimé.',
+    defaultName: 'Moi',
+    delete: 'Supprimer le membre de la famille',
+    deleteConfirmTitle: 'Supprimer {{name}} ?',
+    deleteConfirmBody:
+      'Cela supprime définitivement {{name}} et toutes ses entrées de poids.',
+  },
+  personForm: {
+    nameLabel: 'Nom',
+    namePlaceholder: 'Saisis un nom',
+    nameRequired: 'Saisis un nom',
+    colorLabel: 'Couleur',
+    kindLabel: 'Type',
+    kindAdult: 'Adulte',
+    kindKid: 'Enfant',
+    goalLabel: 'Objectif',
+    goalNone: 'Aucun objectif, juste le suivi',
+    goalLose: 'Perdre du poids',
+    goalGain: 'Prendre du poids',
+    cardLabel: 'Afficher sur l’écran d’accueil',
+    cardBig: 'Grande carte',
+    cardSmall: 'Petite carte',
+    cardHidden: 'Masquée',
+    create: 'Ajouter un membre de la famille',
+    save: 'Enregistrer les modifications',
+  },
 } satisfies Translations;
 
 export default fr;

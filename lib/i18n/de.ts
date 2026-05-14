@@ -44,6 +44,8 @@ const de = {
     exportCsvSubtitle: 'Tabellenkalkulationsfreundlich',
     importData: 'Daten importieren',
     importSubtitle: 'JSON oder CSV — Einträge mit gleichem Datum werden ersetzt',
+    familyMembers: 'Familienmitglieder',
+    familyMembersNote: 'Tippe auf ein Mitglied, um Profil, Farbe oder Sichtbarkeit zu bearbeiten.',
     footer: 'Trend speichert alles auf diesem Gerät. Dein Sprössling glaubt an dich.',
   },
   alerts: {
@@ -89,6 +91,47 @@ const de = {
     body: 'Ein kurzer Tipp hält deinen Verlauf ehrlich.',
   },
   timePicker: { changeLabel: '{{label}} ändern' },
+  home: {
+    title: 'Familie',
+    addMember: 'Familienmitglied hinzufügen',
+    addA11y: 'Familienmitglied hinzufügen',
+    settingsA11y: 'Einstellungen',
+    emptyTitle: 'Noch keine Familienmitglieder',
+    emptySubtitle:
+      'Füge dein erstes Familienmitglied hinzu, um gemeinsam das Gewicht zu verfolgen.',
+  },
+  person: {
+    tabChart: 'Diagramm',
+    tabHistory: 'Verlauf',
+    settingsA11y: 'Personeneinstellungen',
+    backA11y: 'Zurück',
+    notFoundTitle: 'Person nicht gefunden',
+    notFoundBody: 'Dieses Familienmitglied wurde möglicherweise gelöscht.',
+    defaultName: 'Ich',
+    delete: 'Familienmitglied löschen',
+    deleteConfirmTitle: '{{name}} löschen?',
+    deleteConfirmBody:
+      'Dies entfernt {{name}} und alle zugehörigen Gewichtseinträge endgültig.',
+  },
+  personForm: {
+    nameLabel: 'Name',
+    namePlaceholder: 'Namen eingeben',
+    nameRequired: 'Bitte gib einen Namen ein',
+    colorLabel: 'Farbe',
+    kindLabel: 'Typ',
+    kindAdult: 'Erwachsener',
+    kindKid: 'Kind',
+    goalLabel: 'Ziel',
+    goalNone: 'Kein Ziel, nur verfolgen',
+    goalLose: 'Abnehmen',
+    goalGain: 'Zunehmen',
+    cardLabel: 'Auf Startbildschirm zeigen',
+    cardBig: 'Große Karte',
+    cardSmall: 'Kleine Karte',
+    cardHidden: 'Ausgeblendet',
+    create: 'Familienmitglied hinzufügen',
+    save: 'Änderungen speichern',
+  },
 } satisfies Translations;
 
 export default de;
