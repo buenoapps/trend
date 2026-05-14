@@ -1,85 +1,117 @@
 import {
-  entriesFromCsv,
-  entriesFromJson,
+  decodeBackup,
+  decodeCsv,
+  encodeBackup,
   entriesToCsv,
-  entriesToJson,
   mergeEntries,
   sniffFormat,
 } from '../serialize';
-import type { WeightEntry } from '../types';
+import type { Person, WeightEntry } from '../types';
 
-const sample: WeightEntry[] = [
-  { date: '2026-05-01', kg: 72.5 },
-  { date: '2026-05-02', kg: 72.05 },
-  { date: '2026-05-03', kg: 71.9 },
+const persons: Person[] = [
+  { id: 'p1', name: 'Ada', colorKey: 'leaf', kind: 'adult', goal: 'lose', cardDisplay: 'big', createdAt: 1 },
+  { id: 'p2', name: 'Bo', colorKey: 'sky', kind: 'kid', goal: 'none', cardDisplay: 'small', createdAt: 2 },
 ];
 
-describe('serialize', () => {
-  it('JSON roundtrip', () => {
-    const text = entriesToJson(sample);
-    const r = entriesFromJson(text);
+const entries: WeightEntry[] = [
+  { personId: 'p1', date: '2026-05-01', kg: 72.5 },
+  { personId: 'p1', date: '2026-05-02', kg: 72.05 },
+  { personId: 'p2', date: '2026-05-01', kg: 30.2 },
+];
+
+describe('serialize — backup (v2)', () => {
+  it('roundtrips persons + entries', () => {
+    const r = decodeBackup(encodeBackup(persons, entries));
     expect(r.ok).toBe(true);
-    if (r.ok) expect(r.value).toEqual(sample);
+    if (r.ok && r.value.kind === 'full') {
+      expect(r.value.persons).toEqual(persons);
+      expect(r.value.entries).toEqual(entries);
+    } else {
+      throw new Error('expected a full backup');
+    }
   });
 
-  it('JSON accepts a bare array shape', () => {
-    const r = entriesFromJson(JSON.stringify(sample));
+  it('rejects a v2 entry referencing an unknown person', () => {
+    const text = JSON.stringify({
+      version: 2,
+      persons,
+      entries: [{ personId: 'ghost', date: '2026-05-01', kg: 70 }],
+    });
+    expect(decodeBackup(text).ok).toBe(false);
+  });
+});
+
+describe('serialize — backup back-compat (v1)', () => {
+  it('decodes a v1 `{ version: 1, entries }` payload as owner-less entries', () => {
+    const text = JSON.stringify({ version: 1, entries: [{ date: '2026-05-01', kg: 70 }] });
+    const r = decodeBackup(text);
     expect(r.ok).toBe(true);
-    if (r.ok) expect(r.value).toEqual(sample);
+    if (r.ok && r.value.kind === 'entries') {
+      expect(r.value.entries).toEqual([{ date: '2026-05-01', kg: 70 }]);
+    } else {
+      throw new Error('expected owner-less entries');
+    }
   });
 
-  it('JSON rejects bad shape', () => {
-    expect(entriesFromJson('{}').ok).toBe(false);
-    expect(entriesFromJson('not json').ok).toBe(false);
-    expect(entriesFromJson(JSON.stringify([{ date: 'bad', kg: 1 }])).ok).toBe(false);
-    expect(entriesFromJson(JSON.stringify([{ date: '2026-05-01', kg: -1 }])).ok).toBe(false);
-  });
-
-  it('CSV roundtrip preserves decimals', () => {
-    const text = entriesToCsv(sample);
-    expect(text.startsWith('date,kg\n')).toBe(true);
-    const r = entriesFromCsv(text);
+  it('decodes a bare array as owner-less entries', () => {
+    const r = decodeBackup(JSON.stringify([{ date: '2026-05-01', kg: 70 }]));
     expect(r.ok).toBe(true);
-    if (r.ok) expect(r.value).toEqual(sample);
+    if (r.ok) expect(r.value.kind).toBe('entries');
   });
 
-  it('CSV tolerates CRLF and trailing newline', () => {
-    const text = 'date,kg\r\n2026-05-01,72.5\r\n2026-05-02,72.05\r\n\r\n';
-    const r = entriesFromCsv(text);
-    expect(r.ok).toBe(true);
-    if (r.ok) expect(r.value).toHaveLength(2);
+  it('rejects bad shapes', () => {
+    expect(decodeBackup('{}').ok).toBe(false);
+    expect(decodeBackup('not json').ok).toBe(false);
+    expect(decodeBackup(JSON.stringify([{ date: 'bad', kg: 1 }])).ok).toBe(false);
+    expect(decodeBackup(JSON.stringify([{ date: '2026-05-01', kg: -1 }])).ok).toBe(false);
   });
+});
 
-  it('CSV without header still parses', () => {
-    const r = entriesFromCsv('2026-05-01,72.5\n2026-05-02,72.05\n');
-    expect(r.ok).toBe(true);
-    if (r.ok) expect(r.value).toHaveLength(2);
-  });
-
-  it('CSV rejects malformed rows', () => {
-    expect(entriesFromCsv('date,kg\n2026-05-01').ok).toBe(false);
-    expect(entriesFromCsv('date,kg\n2026-05-01,abc').ok).toBe(false);
-    expect(entriesFromCsv('date,kg\nbad-date,72').ok).toBe(false);
-  });
-
-  it('mergeEntries — incoming wins on date collision, sorted', () => {
-    const existing: WeightEntry[] = [
-      { date: '2026-05-01', kg: 70 },
-      { date: '2026-05-03', kg: 72 },
-    ];
-    const incoming: WeightEntry[] = [
-      { date: '2026-05-01', kg: 71.5 },
-      { date: '2026-05-02', kg: 71 },
-    ];
-    expect(mergeEntries(existing, incoming)).toEqual([
-      { date: '2026-05-01', kg: 71.5 },
-      { date: '2026-05-02', kg: 71 },
-      { date: '2026-05-03', kg: 72 },
+describe('serialize — CSV (per-person, owner-less)', () => {
+  it('roundtrips date,kg rows', () => {
+    const text = entriesToCsv([
+      { date: '2026-05-01', kg: 72.5 },
+      { date: '2026-05-02', kg: 72.05 },
     ]);
+    expect(text.startsWith('date,kg\n')).toBe(true);
+    const r = decodeCsv(text);
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.value).toHaveLength(2);
   });
 
-  it('sniffFormat distinguishes JSON from CSV', () => {
-    expect(sniffFormat('  {"entries":[]}')).toBe('json');
+  it('tolerates CRLF, trailing newline, and a missing header', () => {
+    expect(decodeCsv('date,kg\r\n2026-05-01,72.5\r\n\r\n').ok).toBe(true);
+    expect(decodeCsv('2026-05-01,72.5\n2026-05-02,72.05\n').ok).toBe(true);
+  });
+
+  it('rejects malformed rows', () => {
+    expect(decodeCsv('date,kg\n2026-05-01').ok).toBe(false);
+    expect(decodeCsv('date,kg\n2026-05-01,abc').ok).toBe(false);
+    expect(decodeCsv('date,kg\nbad-date,72').ok).toBe(false);
+  });
+});
+
+describe('serialize — mergeEntries', () => {
+  it('keys by (personId, date) — same date, different persons both survive', () => {
+    const merged = mergeEntries(
+      [{ personId: 'p1', date: '2026-05-01', kg: 70 }],
+      [{ personId: 'p2', date: '2026-05-01', kg: 30 }],
+    );
+    expect(merged).toHaveLength(2);
+  });
+
+  it('incoming wins on a (personId, date) collision', () => {
+    const merged = mergeEntries(
+      [{ personId: 'p1', date: '2026-05-01', kg: 70 }],
+      [{ personId: 'p1', date: '2026-05-01', kg: 71.5 }],
+    );
+    expect(merged).toEqual([{ personId: 'p1', date: '2026-05-01', kg: 71.5 }]);
+  });
+});
+
+describe('serialize — sniffFormat', () => {
+  it('distinguishes JSON from CSV', () => {
+    expect(sniffFormat('  {"persons":[]}')).toBe('json');
     expect(sniffFormat('[]')).toBe('json');
     expect(sniffFormat('date,kg\n2026-05-01,72')).toBe('csv');
   });

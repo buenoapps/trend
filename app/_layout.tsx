@@ -5,17 +5,20 @@ import { useEffect } from 'react';
 import { Platform } from 'react-native';
 import 'react-native-reanimated';
 
+import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { todayKey } from '@/lib/dates';
 import { setActiveDate, useSettings } from '@/lib/hooks';
-import { resolveLocale, setLocale } from '@/lib/i18n';
+import { resolveLocale, setLocale, useT } from '@/lib/i18n';
 
 export const unstable_settings = {
-  anchor: '(tabs)',
+  anchor: 'index',
 };
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const palette = Colors[colorScheme];
+  const t = useT();
   const { settings, loaded } = useSettings();
 
   useEffect(() => {
@@ -26,7 +29,7 @@ export default function RootLayout() {
     if (Platform.OS === 'web') return;
     const handle = () => {
       setActiveDate(todayKey());
-      router.navigate('/(tabs)');
+      router.navigate('/');
     };
     Notifications.getLastNotificationResponseAsync().then((resp) => {
       if (resp) handle();
@@ -37,8 +40,16 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack
+        screenOptions={{
+          headerStyle: { backgroundColor: palette.background },
+          headerTintColor: palette.text,
+          headerShadowVisible: false,
+        }}>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="settings" options={{ title: t('settings.title') }} />
+        <Stack.Screen name="person/new" options={{ title: t('personForm.create') }} />
+        <Stack.Screen name="person/[id]" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

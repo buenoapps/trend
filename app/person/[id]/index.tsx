@@ -1,14 +1,14 @@
+import { useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { EmptyState } from '@/components/empty-state';
+import { PersonNotFound } from '@/components/person-not-found';
 import { ThemedText } from '@/components/themed-text';
 import { WeightChart } from '@/components/weight-chart';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { compareKey, daysAgoKey } from '@/lib/dates';
-import { useEntries, useSettings } from '@/lib/hooks';
+import { useEntriesForPerson, usePersons, useSettings } from '@/lib/hooks';
 import { useT, type TranslationKey } from '@/lib/i18n';
 import { formatWeight } from '@/lib/units';
 
@@ -20,11 +20,13 @@ const RANGES = [
   { key: 'all', labelKey: 'history.rangeAll', days: null },
 ] as const satisfies readonly { key: Range; labelKey: TranslationKey; days: number | null }[];
 
-export default function HistoryScreen() {
-  const scheme = useColorScheme() ?? 'light';
-  const palette = Colors[scheme];
+export default function PersonChartScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const palette = Colors[useColorScheme()];
   const t = useT();
-  const { entries, loaded } = useEntries();
+  const { persons, loaded } = usePersons();
+  const person = persons.find((p) => p.id === id);
+  const { entries } = useEntriesForPerson(id);
   const { settings } = useSettings();
   const { width } = useWindowDimensions();
   const [range, setRange] = useState<Range>('30');
@@ -43,21 +45,15 @@ export default function HistoryScreen() {
     const diff = last.kg - first.kg;
     const min = filtered.reduce((acc, e) => (e.kg < acc.kg ? e : acc), filtered[0]);
     const max = filtered.reduce((acc, e) => (e.kg > acc.kg ? e : acc), filtered[0]);
-    return { diff, min, max, first, last };
+    return { diff, min, max };
   }, [filtered]);
 
-  if (loaded && entries.length === 0) {
-    return (
-      <SafeAreaView style={[styles.safe, { backgroundColor: palette.background }]}>
-        <EmptyState />
-      </SafeAreaView>
-    );
-  }
+  if (loaded && !person) return <PersonNotFound />;
+  if (!person) return <View style={[styles.flex, { backgroundColor: palette.background }]} />;
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: palette.background }]} edges={['top']}>
+    <View style={[styles.flex, { backgroundColor: palette.background }]}>
       <ScrollView contentContainerStyle={styles.content}>
-        <ThemedText type="title">{t('history.title')}</ThemedText>
         <ThemedText style={[styles.subtitle, { color: palette.muted }]}>
           {t('history.entriesInWindow', { count: filtered.length })}
         </ThemedText>
@@ -71,15 +67,8 @@ export default function HistoryScreen() {
                 onPress={() => setRange(r.key)}
                 accessibilityRole="button"
                 accessibilityState={{ selected: active }}
-                style={[
-                  styles.toggleItem,
-                  active && { backgroundColor: palette.leaf },
-                ]}>
-                <ThemedText
-                  style={[
-                    styles.toggleText,
-                    { color: active ? '#FFFFFF' : palette.text },
-                  ]}>
+                style={[styles.toggleItem, active && { backgroundColor: palette.leaf }]}>
+                <ThemedText style={[styles.toggleText, { color: active ? '#FFFFFF' : palette.text }]}>
                   {t(r.labelKey)}
                 </ThemedText>
               </Pressable>
@@ -109,7 +98,7 @@ export default function HistoryScreen() {
           </View>
         ) : null}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -131,8 +120,8 @@ function StatCard({
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
-  content: { padding: 24, gap: 12 },
+  flex: { flex: 1 },
+  content: { padding: 24, gap: 12, paddingBottom: 48 },
   subtitle: { fontSize: 14 },
   toggle: {
     flexDirection: 'row',

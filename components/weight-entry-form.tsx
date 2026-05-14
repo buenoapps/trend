@@ -7,14 +7,15 @@ import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { todayKey } from '@/lib/dates';
 import { useT } from '@/lib/i18n';
-import type { DateKey, Unit, WeightEntry } from '@/lib/types';
+import type { DateKey, DraftEntry, Unit } from '@/lib/types';
 import { formatWeight, parseWeightInput, reasonToKey } from '@/lib/units';
 
 type Props = {
   date: DateKey;
   unit: Unit;
   initialKg?: number;
-  onSave: (entry: WeightEntry) => void | Promise<void>;
+  /** Receives an owner-less `{ date, kg }`; the caller stamps it with a personId. */
+  onSave: (entry: DraftEntry) => void | Promise<void>;
 };
 
 export function WeightEntryForm({ date, unit, initialKg, onSave }: Props) {
