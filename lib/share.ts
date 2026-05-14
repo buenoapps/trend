@@ -5,37 +5,29 @@ import { Platform } from 'react-native';
 
 import { todayKey } from './dates';
 import {
-  entriesFromCsv,
-  entriesFromJson,
+  decodeBackup,
+  decodeCsv,
+  encodeBackup,
   entriesToCsv,
-  entriesToJson,
   sniffFormat,
   type DecodeResult,
+  type ImportResult,
 } from './serialize';
-import type { WeightEntry } from './types';
+import type { DraftEntry, Person, WeightEntry } from './types';
 
-type ExportKind = 'json' | 'csv';
+const JSON_MIME = 'application/json';
+const CSV_MIME = 'text/csv';
+const JSON_UTI = 'public.json';
+const CSV_UTI = 'public.comma-separated-values-text';
 
-const MIME = {
-  json: 'application/json',
-  csv: 'text/csv',
-};
-
-const UTI = {
-  json: 'public.json',
-  csv: 'public.comma-separated-values-text',
-};
-
-function buildBody(entries: WeightEntry[], kind: ExportKind): string {
-  return kind === 'json' ? entriesToJson(entries) : entriesToCsv(entries);
-}
-
-export async function exportEntries(entries: WeightEntry[], kind: ExportKind): Promise<void> {
-  const body = buildBody(entries, kind);
-  const filename = `trend-${todayKey()}.${kind}`;
-
+async function writeAndShare(
+  filename: string,
+  body: string,
+  mime: string,
+  uti: string,
+): Promise<void> {
   if (Platform.OS === 'web') {
-    const blob = new Blob([body], { type: MIME[kind] });
+    const blob = new Blob([body], { type: mime });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -53,8 +45,32 @@ export async function exportEntries(entries: WeightEntry[], kind: ExportKind): P
   file.write(body);
 
   if (await Sharing.isAvailableAsync()) {
-    await Sharing.shareAsync(file.uri, { mimeType: MIME[kind], UTI: UTI[kind] });
+    await Sharing.shareAsync(file.uri, { mimeType: mime, UTI: uti });
   }
+}
+
+/** Global JSON backup — every person plus every entry, round-trippable. */
+export async function exportBackup(persons: Person[], entries: WeightEntry[]): Promise<void> {
+  await writeAndShare(
+    `trend-backup-${todayKey()}.json`,
+    encodeBackup(persons, entries),
+    JSON_MIME,
+    JSON_UTI,
+  );
+}
+
+function slug(name: string): string {
+  return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'person';
+}
+
+/** Per-person CSV — `date,kg` rows, no person column. */
+export async function exportPersonCsv(name: string, entries: DraftEntry[]): Promise<void> {
+  await writeAndShare(
+    `trend-${slug(name)}-${todayKey()}.csv`,
+    entriesToCsv(entries),
+    CSV_MIME,
+    CSV_UTI,
+  );
 }
 
 export type ImportPayload = { filename: string; text: string };
@@ -91,12 +107,16 @@ export async function importFromPicker(): Promise<ImportPayload | null> {
   return { filename: asset.name ?? 'import', text };
 }
 
-export function decodePayload(payload: ImportPayload): DecodeResult<WeightEntry[]> {
+export function decodePayload(payload: ImportPayload): DecodeResult<ImportResult> {
   const lower = payload.filename.toLowerCase();
   const format = lower.endsWith('.csv')
     ? 'csv'
     : lower.endsWith('.json')
       ? 'json'
       : sniffFormat(payload.text);
-  return format === 'json' ? entriesFromJson(payload.text) : entriesFromCsv(payload.text);
+  if (format === 'csv') {
+    const r = decodeCsv(payload.text);
+    return r.ok ? { ok: true, value: { kind: 'entries', entries: r.value } } : r;
+  }
+  return decodeBackup(payload.text);
 }

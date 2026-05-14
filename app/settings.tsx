@@ -1,12 +1,15 @@
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Platform, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { TimePickerRow } from '@/components/time-picker-row';
-import { Colors } from '@/constants/theme';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Colors, personColor } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useEntries, useSettings } from '@/lib/hooks';
+import { confirm, notify } from '@/lib/alerts';
+import { useEntries, usePersons, useSettings } from '@/lib/hooks';
 import {
   resolveLocale,
   setLocale,
@@ -21,7 +24,7 @@ import {
   scheduleDailyReminder,
 } from '@/lib/notifications';
 import { mergeEntries } from '@/lib/serialize';
-import { decodePayload, exportEntries, importFromPicker } from '@/lib/share';
+import { decodePayload, exportBackup, importFromPicker } from '@/lib/share';
 import type { LocaleChoice, Unit } from '@/lib/types';
 
 const LOCALE_LABELS: Record<SupportedLocale, string> = {
@@ -32,37 +35,14 @@ const LOCALE_LABELS: Record<SupportedLocale, string> = {
   it: 'Italiano',
 };
 
-function confirm(
-  title: string,
-  message: string,
-  cancelLabel: string,
-  confirmLabel: string,
-): Promise<boolean> {
-  if (Platform.OS === 'web') {
-    return Promise.resolve(window.confirm(message));
-  }
-  return new Promise((resolve) => {
-    Alert.alert(title, message, [
-      { text: cancelLabel, style: 'cancel', onPress: () => resolve(false) },
-      { text: confirmLabel, onPress: () => resolve(true) },
-    ]);
-  });
-}
-
-function notify(title: string, message?: string) {
-  if (Platform.OS === 'web') {
-    window.alert(message ? `${title}\n\n${message}` : title);
-  } else {
-    Alert.alert(title, message);
-  }
-}
-
-export default function SettingsScreen() {
-  const scheme = useColorScheme() ?? 'light';
-  const palette = Colors[scheme];
+export default function GlobalSettingsScreen() {
+  const palette = Colors[useColorScheme()];
+  const scheme = useColorScheme();
   const t = useT();
+  const router = useRouter();
   const { settings, update } = useSettings();
   const { entries, replaceAll } = useEntries();
+  const { persons, upsert: upsertPerson } = usePersons();
   const [busy, setBusy] = useState<string | null>(null);
 
   const supportsReminders = notificationsSupported();
@@ -100,14 +80,14 @@ export default function SettingsScreen() {
     }
   };
 
-  const handleExport = async (kind: 'json' | 'csv') => {
-    if (entries.length === 0) {
+  const handleExport = async () => {
+    if (entries.length === 0 && persons.length === 0) {
       notify(t('alerts.nothingToExport'), t('alerts.nothingToExportBody'));
       return;
     }
     try {
-      setBusy(`export-${kind}`);
-      await exportEntries(entries, kind);
+      setBusy('export');
+      await exportBackup(persons, entries);
     } catch (e) {
       notify(t('alerts.exportFailed'), e instanceof Error ? e.message : t('alerts.unknownError'));
     } finally {
@@ -125,18 +105,50 @@ export default function SettingsScreen() {
         notify(t('alerts.importFailed'), decoded.reason);
         return;
       }
+
+      if (decoded.value.kind === 'full') {
+        const proceed = await confirm(
+          t('alerts.importTitle'),
+          t('alerts.importConfirm', {
+            count: decoded.value.entries.length,
+            filename: payload.filename,
+          }),
+          t('alerts.cancel'),
+          t('alerts.import'),
+        );
+        if (!proceed) return;
+        for (const p of decoded.value.persons) await upsertPerson(p);
+        const merged = mergeEntries(entries, decoded.value.entries);
+        await replaceAll(merged);
+        notify(
+          t('alerts.importComplete'),
+          t('alerts.importCompleteBody', { count: decoded.value.entries.length }),
+        );
+        return;
+      }
+
+      // `entries`-kind: a legacy single-person export / CSV with no owner.
+      const target = persons[0];
+      if (!target) {
+        notify(t('alerts.importFailed'), t('home.emptySubtitle'));
+        return;
+      }
       const proceed = await confirm(
         t('alerts.importTitle'),
-        t('alerts.importConfirm', { count: decoded.value.length, filename: payload.filename }),
+        t('alerts.importConfirm', {
+          count: decoded.value.entries.length,
+          filename: `${payload.filename} → ${target.name}`,
+        }),
         t('alerts.cancel'),
         t('alerts.import'),
       );
       if (!proceed) return;
-      const merged = mergeEntries(entries, decoded.value);
+      const stamped = decoded.value.entries.map((e) => ({ ...e, personId: target.id }));
+      const merged = mergeEntries(entries, stamped);
       await replaceAll(merged);
       notify(
         t('alerts.importComplete'),
-        t('alerts.importCompleteBody', { count: decoded.value.length }),
+        t('alerts.importCompleteBody', { count: stamped.length }),
       );
     } catch (e) {
       notify(t('alerts.importFailed'), e instanceof Error ? e.message : t('alerts.unknownError'));
@@ -146,10 +158,8 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: palette.background }]} edges={['top']}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: palette.background }]} edges={['bottom']}>
       <ScrollView contentContainerStyle={styles.content}>
-        <ThemedText type="title">{t('settings.title')}</ThemedText>
-
         <Section title={t('settings.units')} palette={palette}>
           <View style={[styles.toggle, { backgroundColor: palette.cardSoft, borderColor: palette.border }]}>
             {(['kg', 'lb'] as Unit[]).map((u) => {
@@ -161,8 +171,7 @@ export default function SettingsScreen() {
                   accessibilityRole="button"
                   accessibilityState={{ selected: active }}
                   style={[styles.toggleItem, active && { backgroundColor: palette.leaf }]}>
-                  <ThemedText
-                    style={[styles.toggleText, { color: active ? '#FFFFFF' : palette.text }]}>
+                  <ThemedText style={[styles.toggleText, { color: active ? '#FFFFFF' : palette.text }]}>
                     {u}
                   </ThemedText>
                 </Pressable>
@@ -171,6 +180,44 @@ export default function SettingsScreen() {
           </View>
           <ThemedText style={[styles.note, { color: palette.muted }]}>
             {t('settings.unitsNote')}
+          </ThemedText>
+        </Section>
+
+        <Section title={t('settings.familyMembers')} palette={palette}>
+          {persons.map((p) => (
+            <Pressable
+              key={p.id}
+              onPress={() => router.push({ pathname: '/person/[id]/settings', params: { id: p.id } })}
+              accessibilityRole="button"
+              accessibilityLabel={p.name}
+              style={({ pressed }) => [
+                styles.memberRow,
+                { borderColor: palette.border, backgroundColor: palette.card, opacity: pressed ? 0.85 : 1 },
+              ]}>
+              <View style={[styles.dot, { backgroundColor: personColor(p.colorKey, scheme) }]} />
+              <ThemedText style={styles.memberName} numberOfLines={1}>
+                {p.name}
+              </ThemedText>
+              {p.cardDisplay === 'hidden' ? (
+                <ThemedText style={[styles.memberMeta, { color: palette.muted }]}>
+                  {t('personForm.cardHidden')}
+                </ThemedText>
+              ) : null}
+              <IconSymbol name="chevron.right" size={18} color={palette.muted} />
+            </Pressable>
+          ))}
+          <Pressable
+            onPress={() => router.push('/person/new')}
+            accessibilityRole="button"
+            accessibilityLabel={t('home.addMember')}
+            style={({ pressed }) => [
+              styles.action,
+              { borderColor: palette.border, backgroundColor: palette.card, opacity: pressed ? 0.85 : 1 },
+            ]}>
+            <ThemedText style={styles.actionText}>{t('home.addMember')}</ThemedText>
+          </Pressable>
+          <ThemedText style={[styles.note, { color: palette.muted }]}>
+            {t('settings.familyMembersNote')}
           </ThemedText>
         </Section>
 
@@ -210,16 +257,9 @@ export default function SettingsScreen() {
                   accessibilityState={{ selected: active }}
                   style={[
                     styles.languageItem,
-                    {
-                      borderColor: palette.border,
-                      backgroundColor: active ? palette.leaf : palette.card,
-                    },
+                    { borderColor: palette.border, backgroundColor: active ? palette.leaf : palette.card },
                   ]}>
-                  <ThemedText
-                    style={[
-                      styles.languageText,
-                      { color: active ? '#FFFFFF' : palette.text },
-                    ]}>
+                  <ThemedText style={[styles.languageText, { color: active ? '#FFFFFF' : palette.text }]}>
                     {label}
                   </ThemedText>
                 </Pressable>
@@ -230,8 +270,8 @@ export default function SettingsScreen() {
 
         <Section title={t('settings.yourData')} palette={palette}>
           <Pressable
-            disabled={busy === 'export-json'}
-            onPress={() => handleExport('json')}
+            disabled={busy === 'export'}
+            onPress={handleExport}
             style={({ pressed }) => [
               styles.action,
               { borderColor: palette.border, backgroundColor: palette.card, opacity: pressed ? 0.85 : 1 },
@@ -239,18 +279,6 @@ export default function SettingsScreen() {
             <ThemedText style={styles.actionText}>{t('settings.exportJson')}</ThemedText>
             <ThemedText style={[styles.actionSub, { color: palette.muted }]}>
               {t('settings.exportJsonCount', { count: entries.length })}
-            </ThemedText>
-          </Pressable>
-          <Pressable
-            disabled={busy === 'export-csv'}
-            onPress={() => handleExport('csv')}
-            style={({ pressed }) => [
-              styles.action,
-              { borderColor: palette.border, backgroundColor: palette.card, opacity: pressed ? 0.85 : 1 },
-            ]}>
-            <ThemedText style={styles.actionText}>{t('settings.exportCsv')}</ThemedText>
-            <ThemedText style={[styles.actionSub, { color: palette.muted }]}>
-              {t('settings.exportCsvSubtitle')}
             </ThemedText>
           </Pressable>
           <Pressable
@@ -312,6 +340,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   rowLabel: { fontSize: 16, flex: 1, marginRight: 12 },
+  memberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  dot: { width: 14, height: 14, borderRadius: 7 },
+  memberName: { fontSize: 16, flex: 1 },
+  memberMeta: { fontSize: 12 },
   toggle: {
     flexDirection: 'row',
     borderRadius: 12,

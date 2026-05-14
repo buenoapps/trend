@@ -1,17 +1,31 @@
-import { useCallback, useSyncExternalStore } from 'react';
+import { useCallback, useMemo, useSyncExternalStore } from 'react';
 
 import { todayKey } from './dates';
 import {
+  __resetStorageForTest,
+  deleteEntry as persistDelete,
+  deletePerson as persistDeletePerson,
   loadEntries,
+  loadPersons,
   loadSettings,
+  migrateIfNeeded,
+  saveEntries as persistEntries,
   saveSettings as persistSettings,
   upsertEntry as persistUpsert,
-  deleteEntry as persistDelete,
-  saveEntries as persistEntries,
+  upsertPerson as persistUpsertPerson,
 } from './storage';
-import { DEFAULT_SETTINGS, type DateKey, type Settings, type WeightEntry } from './types';
+import {
+  DEFAULT_SETTINGS,
+  type DateKey,
+  type Person,
+  type PersonId,
+  type Settings,
+  type WeightEntry,
+} from './types';
 
 type Listener = () => void;
+
+// --- Entries store ---------------------------------------------------------
 
 let entriesCache: WeightEntry[] = [];
 let entriesLoaded = false;
@@ -26,7 +40,8 @@ function subscribeEntries(l: Listener): () => void {
   entriesListeners.add(l);
   if (!entriesLoadStarted) {
     entriesLoadStarted = true;
-    loadEntries()
+    migrateIfNeeded()
+      .then(() => loadEntries())
       .then((rows) => {
         entriesCache = rows;
         entriesLoaded = true;
@@ -56,8 +71,8 @@ export function useEntries() {
     return next;
   }, []);
 
-  const remove = useCallback(async (date: string) => {
-    const next = await persistDelete(date);
+  const remove = useCallback(async (personId: PersonId, date: string) => {
+    const next = await persistDelete(personId, date);
     entriesCache = next;
     notifyEntries();
     return next;
@@ -72,6 +87,82 @@ export function useEntries() {
 
   return { entries, loaded: entriesLoaded, upsert, remove, replaceAll };
 }
+
+/** `useEntries` narrowed to a single person — the per-person screens use this. */
+export function useEntriesForPerson(personId: PersonId) {
+  const { entries, ...rest } = useEntries();
+  const personEntries = useMemo(
+    () => entries.filter((e) => e.personId === personId),
+    [entries, personId],
+  );
+  return { entries: personEntries, ...rest };
+}
+
+// --- Persons store ---------------------------------------------------------
+
+let personsCache: Person[] = [];
+let personsLoaded = false;
+let personsLoadStarted = false;
+const personsListeners = new Set<Listener>();
+
+function notifyPersons() {
+  personsListeners.forEach((l) => l());
+}
+
+function subscribePersons(l: Listener): () => void {
+  personsListeners.add(l);
+  if (!personsLoadStarted) {
+    personsLoadStarted = true;
+    migrateIfNeeded()
+      .then(() => loadPersons())
+      .then((rows) => {
+        personsCache = rows;
+        personsLoaded = true;
+        notifyPersons();
+      })
+      .catch(() => {
+        personsLoaded = true;
+        notifyPersons();
+      });
+  }
+  return () => {
+    personsListeners.delete(l);
+  };
+}
+
+export function usePersons() {
+  const persons = useSyncExternalStore(
+    subscribePersons,
+    () => personsCache,
+    () => personsCache,
+  );
+
+  const upsert = useCallback(async (person: Person) => {
+    const next = await persistUpsertPerson(person);
+    personsCache = next;
+    notifyPersons();
+    return next;
+  }, []);
+
+  const remove = useCallback(async (id: PersonId) => {
+    const result = await persistDeletePerson(id);
+    personsCache = result.persons;
+    entriesCache = result.entries;
+    notifyPersons();
+    notifyEntries();
+    return result;
+  }, []);
+
+  return { persons, loaded: personsLoaded, upsert, remove };
+}
+
+/** Looks up one person reactively — `undefined` while loading or if removed. */
+export function usePerson(id: PersonId): Person | undefined {
+  const { persons } = usePersons();
+  return useMemo(() => persons.find((p) => p.id === id), [persons, id]);
+}
+
+// --- Settings store --------------------------------------------------------
 
 let settingsCache: Settings = { ...DEFAULT_SETTINGS };
 let settingsLoaded = false;
@@ -118,6 +209,8 @@ export function useSettings() {
   return { settings, loaded: settingsLoaded, update };
 }
 
+// --- Active date store -----------------------------------------------------
+
 let activeDateCache: DateKey = todayKey();
 const activeDateListeners = new Set<Listener>();
 
@@ -152,10 +245,15 @@ export function __resetHooksForTest() {
   entriesLoaded = false;
   entriesLoadStarted = false;
   entriesListeners.clear();
+  personsCache = [];
+  personsLoaded = false;
+  personsLoadStarted = false;
+  personsListeners.clear();
   settingsCache = { ...DEFAULT_SETTINGS };
   settingsLoaded = false;
   settingsLoadStarted = false;
   settingsListeners.clear();
   activeDateCache = todayKey();
   activeDateListeners.clear();
+  __resetStorageForTest();
 }

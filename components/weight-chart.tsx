@@ -6,11 +6,11 @@ import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { formatShort } from '@/lib/dates';
 import { useLocale } from '@/lib/i18n';
-import type { Unit, WeightEntry } from '@/lib/types';
+import type { DraftEntry, Unit } from '@/lib/types';
 import { formatWeight, kgToLb } from '@/lib/units';
 
 type Props = {
-  entries: WeightEntry[];
+  entries: DraftEntry[];
   unit: Unit;
   width: number;
 };
