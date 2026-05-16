@@ -1,0 +1,66 @@
+name: Deploy web to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one deploy at a time. Do NOT cancel in-progress deploys — that
+# can leave Pages in a half-published state.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build expo web bundle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+
+      # GitHub Pages serves the site under /<repo>/, so every asset URL must
+      # be prefixed. Expo Router's web export honours `expo.experiments.baseUrl`
+      # in app.json; patch it for this build only (kept out of the committed
+      # config so local dev URLs stay at the root).
+      - name: Set Expo baseUrl for GitHub Pages
+        run: |
+          jq '.expo.experiments.baseUrl = "/${{ github.event.repository.name }}"' app.json > app.json.tmp
+          mv app.json.tmp app.json
+
+      - run: npx expo export --platform web
+
+      # Pages helpers: a `404.html` fallback so deep links boot the SPA shell,
+      # and `.nojekyll` so Pages serves `_expo/` assets as-is.
+      - name: Add GitHub Pages helpers
+        run: |
+          cp dist/index.html dist/404.html
+          touch dist/.nojekyll
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
