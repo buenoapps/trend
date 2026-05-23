@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
@@ -18,13 +18,32 @@ type Props = {
   onSave: (entry: DraftEntry) => void | Promise<void>;
 };
 
+function initialText(initialKg: number | undefined, unit: Unit): string {
+  return initialKg != null ? formatWeight(initialKg, unit, { withUnit: false }) : '';
+}
+
 export function WeightEntryForm({ date, unit, initialKg, onSave }: Props) {
   const scheme = useColorScheme() ?? 'light';
   const palette = Colors[scheme];
   const t = useT();
-  const [text, setText] = useState('');
+  const [text, setText] = useState(() => initialText(initialKg, unit));
   const [error, setError] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+
+  // Reset local state when the form is being shown for a different entry —
+  // documented React pattern for "store information from previous renders"
+  // without a `useEffect` that calls `setState`.
+  const [prevKey, setPrevKey] = useState({ date, initialKg, unit });
+  if (
+    prevKey.date !== date ||
+    prevKey.initialKg !== initialKg ||
+    prevKey.unit !== unit
+  ) {
+    setPrevKey({ date, initialKg, unit });
+    setText(initialText(initialKg, unit));
+    setError(null);
+    setSavedAt(null);
+  }
 
   const isToday = date === todayKey();
   const placeholder =
@@ -33,12 +52,6 @@ export function WeightEntryForm({ date, unit, initialKg, onSave }: Props) {
         ? t('form.placeholderToday')
         : t('form.placeholderPast')
       : t('form.placeholderEmpty');
-
-  useEffect(() => {
-    setText(initialKg != null ? formatWeight(initialKg, unit, { withUnit: false }) : '');
-    setError(null);
-    setSavedAt(null);
-  }, [date, initialKg, unit]);
 
   const handleSave = async () => {
     const result = parseWeightInput(text, unit);
